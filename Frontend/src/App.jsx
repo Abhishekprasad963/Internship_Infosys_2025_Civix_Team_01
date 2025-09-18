@@ -1,118 +1,392 @@
-// import React, { useState } from 'react';
-// import Sidebar from './components/Sidebar';
-// import Dashboard from './pages/Dashboard';
+// // // // import { useEffect, useState } from 'react';
+// // // // import { Navigate, Route, Routes } from 'react-router-dom';
+// // // // import { AuthProvider } from './components/AuthContext';
+// // // // import ProtectedRoute from './components/ProtectedRoute';
+// // // // import DashboardLayout from './pages/DashboardLayout';
+// // // // import LandingPage from "./pages/LandingPage";
+// // // // import LoginPage from './pages/LoginPage';
+// // // // import OfficialDashboard from './pages/OfficialDashboard'; // Add this import
+// // // // import SignupPage from './pages/SignupPage';
+
+// // // // function App() {
+// // // //   const [userRole, setUserRole] = useState('');
+// // // //   const [petitionStats, setPetitionStats] = useState({
+// // // //     myPetitions: 0,
+// // // //     signedPetitions: 0,
+// // // //     activePetitions: 0
+// // // //   });
+
+// // // //   useEffect(() => {
+// // // //     const role = localStorage.getItem('userRole');
+// // // //     setUserRole(role || '');
+// // // //     // Fetch petition stats if needed
+// // // //     // fetchPetitionStats();
+// // // //   }, []);
+
+// // // //   return (
+// // // //     <AuthProvider>
+// // // //       <Routes>
+// // // //         <Route path="/" element={<LandingPage />} />
+// // // //         <Route path="/login" element={<LoginPage />} />
+// // // //         <Route path="/signup" element={<SignupPage />} />
+// // // //         <Route path="/dashboard/*" element={
+// // // //           <ProtectedRoute>
+// // // //             {userRole === 'official'
+// // // //               ? <Navigate to="/official-dashboard" replace />
+// // // //               : <DashboardLayout
+// // // //                   myPetitionsCount={petitionStats.myPetitions}
+// // // //                   signedPetitionsCount={petitionStats.signedPetitions}
+// // // //                   activePetitionsCount={petitionStats.activePetitions}
+// // // //                 />}
+// // // //           </ProtectedRoute>
+// // // //         } />
+// // // //         <Route path="/official-dashboard/*" element={
+// // // //           <ProtectedRoute>
+// // // //             <OfficialDashboard />
+// // // //           </ProtectedRoute>
+// // // //         } />
+// // // //         <Route path="*" element={<Navigate to="/" replace />} />
+// // // //       </Routes>
+// // // //     </AuthProvider>
+// // // //   );
+// // // // }
+
+// // // // export default App;
+
+
+
+
+
+// // // import { useEffect, useState } from 'react';
+// // // import { Navigate, Route, Routes } from 'react-router-dom';
+// // // import { AuthProvider } from './components/AuthContext';
+// // // import ProtectedRoute from './components/ProtectedRoute';
+// // // import Dashboard from './pages/Dashboard'; // Import the Dashboard component
+// // // import DashboardLayout from './pages/DashboardLayout';
+// // // import LandingPage from "./pages/LandingPage";
+// // // import LoginPage from './pages/LoginPage';
+// // // import OfficialDashboard from './pages/OfficialDashboard';
+// // // import Petitions from './pages/Petitions';
+// // // import Polls from './pages/Polls';
+// // // import SignupPage from './pages/SignupPage';
+
+// // // function App() {
+// // //   const [userRole, setUserRole] = useState('');
+// // //   const [petitionStats, setPetitionStats] = useState({
+// // //     myPetitions: 0,
+// // //     signedPetitions: 0,
+// // //     activePetitions: 0
+// // //   });
+
+// // //   useEffect(() => {
+// // //     const role = localStorage.getItem('userRole');
+// // //     setUserRole(role || '');
+// // //   }, []);
+
+// // //   return (
+// // //     <AuthProvider>
+// // //       <Routes>
+// // //         <Route path="/" element={<LandingPage />} />
+// // //         <Route path="/login" element={<LoginPage />} />
+// // //         <Route path="/signup" element={<SignupPage />} />
+
+// // //         <Route path="/dashboard" element={
+// // //           <ProtectedRoute>
+// // //             {userRole === 'official'
+// // //               ? <Navigate to="/official-dashboard" replace />
+// // //               : <DashboardLayout
+// // //                   myPetitionsCount={petitionStats.myPetitions}
+// // //                   signedPetitionsCount={petitionStats.signedPetitions}
+// // //                   activePetitionsCount={petitionStats.activePetitions}
+// // //                 />}
+// // //           </ProtectedRoute>
+// // //         }>
+// // //           {/* Index route to show Dashboard by default at /dashboard */}
+// // //           <Route index element={<Dashboard />} />
+// // //           <Route path="petitions" element={<Petitions />} />
+// // //           <Route path="polls" element={<Polls />} />
+// // //         </Route>
+
+// // //         <Route path="/official-dashboard" element={
+// // //           <ProtectedRoute>
+// // //             <OfficialDashboard />
+// // //           </ProtectedRoute>
+// // //         } />
+        
+// // //         <Route path="*" element={<Navigate to="/" replace />} />
+// // //       </Routes>
+// // //     </AuthProvider>
+// // //   );
+// // // }
+
+// // // export default App;
+
+
+
+
+
+
+
+// // import { useEffect, useState } from 'react';
+// // import { Navigate, Route, Routes } from 'react-router-dom';
+// // import { AuthProvider } from './components/AuthContext';
+// // import ProtectedRoute from './components/ProtectedRoute';
+
+// // import Dashboard from './pages/Dashboard';
+// // import DashboardLayout from './pages/DashboardLayout';
+// // import LandingPage from "./pages/LandingPage";
+// // import LoginPage from './pages/LoginPage';
+// // import OfficialDashboard from './pages/OfficialDashboard';
+// // import Petitions from './pages/Petitions';
+// // import Polls from './pages/Polls';
+// // import Officials from './pages/Officials';
+// // import SettingsPage from './pages/SettingsPage';
+// // import CreatePetitions from './pages/CreatePetitions';
+// // import ParticipatePolls from './pages/ParticipatePolls';
+// // import TrackResponses from './pages/TrackResponses';
+// // import SignupPage from './pages/SignupPage';
+
+// // function App() {
+// //   const [userRole, setUserRole] = useState('');
+// //   const [petitionStats, setPetitionStats] = useState({
+// //     myPetitions: 0,
+// //     signedPetitions: 0,
+// //     activePetitions: 0
+// //   });
+
+// //   useEffect(() => {
+// //     const role = localStorage.getItem('userRole');
+// //     setUserRole(role || '');
+// //   }, []);
+
+// //   return (
+// //     <AuthProvider>
+// //       <Routes>
+// //         {/* Public Routes */}
+// //         <Route path="/" element={<LandingPage />} />
+// //         <Route path="/login" element={<LoginPage />} />
+// //         <Route path="/signup" element={<SignupPage />} />
+
+// //         {/* Dashboard Routes */}
+// //         <Route
+// //           path="/dashboard/*"
+// //           element={
+// //             <ProtectedRoute>
+// //               {userRole === 'official'
+// //                 ? <Navigate to="/official-dashboard" replace />
+// //                 : <DashboardLayout
+// //                     myPetitionsCount={petitionStats.myPetitions}
+// //                     signedPetitionsCount={petitionStats.signedPetitions}
+// //                     activePetitionsCount={petitionStats.activePetitions}
+// //                   />}
+// //             </ProtectedRoute>
+// //           }
+// //         >
+// //           <Route index element={<Dashboard />} />
+// //           <Route path="petitions" element={<Petitions />} />
+// //           <Route path="polls" element={<Polls />} />
+// //           <Route path="officials" element={<Officials />} />
+// //           <Route path="settings" element={<SettingsPage />} />
+// //           <Route path="create-petitions" element={<CreatePetitions />} />
+// //           <Route path="participate-polls" element={<ParticipatePolls />} />
+// //           <Route path="track-responses" element={<TrackResponses />} />
+// //         </Route>
+
+// //         {/* Official Dashboard */}
+// //         <Route
+// //           path="/official-dashboard/*"
+// //           element={
+// //             <ProtectedRoute>
+// //               <OfficialDashboard />
+// //             </ProtectedRoute>
+// //           }
+// //         />
+
+// //         {/* Fallback */}
+// //         <Route path="*" element={<Navigate to="/" replace />} />
+// //       </Routes>
+// //     </AuthProvider>
+// //   );
+// // }
+
+// // export default App;
+
+
+
+
+
+
+
+// import { useEffect, useState } from 'react';
+// import { Navigate, Route, Routes } from 'react-router-dom';
+// import { AuthProvider } from './components/AuthContext';
+// import ProtectedRoute from './components/ProtectedRoute';
+
+// // Pages
+// import CreatePetitions from './pages/CreatePetitions';
+// import Dashboard from './pages/Dashboard'; // ✅ Make sure this exists!
+// import DashboardLayout from './pages/DashboardLayout';
+// import LandingPage from './pages/LandingPage';
+// import LoginPage from './pages/LoginPage';
+// import OfficialDashboard from './pages/OfficialDashboard';
+// import Officials from './pages/Officials';
+// import ParticipatePolls from './pages/ParticipatePolls';
 // import Petitions from './pages/Petitions';
 // import Polls from './pages/Polls';
-// import Officials from './pages/Officials';
 // import SettingsPage from './pages/SettingsPage';
-// import CreatePetitions from './pages/CreatePetitions';
-// import ParticipatePolls from './pages/ParticipatePolls';
+// import SignupPage from './pages/SignupPage';
 // import TrackResponses from './pages/TrackResponses';
 
-// const App: React.FC = () => {
-//   const [activeSection, setActiveSection] = useState<string>('dashboard');
-//   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+// function App() {
+//   const [userRole, setUserRole] = useState('');
+//   const [petitionStats, setPetitionStats] = useState({
+//     myPetitions: 0,
+//     signedPetitions: 0,
+//     activePetitions: 0,
+//   });
 
-//   const renderContent = () => {
-//     switch (activeSection) {
-//       case 'dashboard':
-//         return <Dashboard selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />;
-//       case 'petitions':
-//         return <Petitions />;
-//       case 'polls':
-//         return <Polls />;
-//       case 'officials':
-//         return <Officials />;
-//       case 'settings':
-//         return <SettingsPage />;
-//       case 'create-petitions':
-//         return <CreatePetitions />;
-//       case 'participate-polls':
-//         return <ParticipatePolls />;
-//       case 'track-responses':
-//         return <TrackResponses />;
-//       default:
-//         return <Dashboard selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />;
-//     }
-//   };
+//   useEffect(() => {
+//     const role = localStorage.getItem('userRole');
+//     setUserRole(role || '');
+//   }, []);
 
 //   return (
-//     <div className="min-h-screen bg-gray-50">
-//       <div className="flex">
-//         <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-//         {renderContent()}
-//       </div>
-//     </div>
+//     <AuthProvider>
+//       <Routes>
+//         {/* Public Routes */}
+//         <Route path="/" element={<LandingPage />} />
+//         <Route path="/login" element={<LoginPage />} />
+//         <Route path="/signup" element={<SignupPage />} />
+
+//         {/* Dashboard Routes */}
+//         <Route
+//           path="/dashboard/*"
+//           element={
+//             <ProtectedRoute>
+//               {userRole === 'official'
+//                 ? <Navigate to="/official-dashboard" replace />
+//                 : <DashboardLayout
+//                     myPetitionsCount={petitionStats.myPetitions}
+//                     signedPetitionsCount={petitionStats.signedPetitions}
+//                     activePetitionsCount={petitionStats.activePetitions}
+//                   />}
+//             </ProtectedRoute>
+//           }
+//         >
+//           {/* ✅ This loads Dashboard by default at /dashboard */}
+//           <Route index element={<Dashboard />} />
+//           <Route path="petitions" element={<Petitions />} />
+//           <Route path="polls" element={<Polls />} />
+//           <Route path="officials" element={<Officials />} />
+//           <Route path="settings" element={<SettingsPage />} />
+//           <Route path="create-petitions" element={<CreatePetitions />} />
+//           <Route path="participate-polls" element={<ParticipatePolls />} />
+//           <Route path="track-responses" element={<TrackResponses />} />
+//         </Route>
+
+//         {/* Official Dashboard */}
+//         <Route
+//           path="/official-dashboard/*"
+//           element={
+//             <ProtectedRoute>
+//               <OfficialDashboard />
+//             </ProtectedRoute>
+//           }
+//         />
+
+//         {/* Fallback */}
+//         <Route path="*" element={<Navigate to="/" replace />} />
+//       </Routes>
+//     </AuthProvider>
 //   );
-// };
+// }
 
 // export default App;
 
 
+
+
+
 import { useEffect, useState } from 'react';
-import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import LandingPage from './components/LandingPage';
-import LoginPage from './components/LoginPage';
-import SignUpPage from './components/SignupPage';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './components/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Pages
+import CreatePetitions from './pages/CreatePetitions';
+import Dashboard from './pages/Dashboard';
 import DashboardLayout from './pages/DashboardLayout';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import OfficialDashboard from './pages/OfficialDashboard';
+import Officials from './pages/Officials';
+import ParticipatePolls from './pages/ParticipatePolls';
+import Petitions from './pages/Petitions';
+import Polls from './pages/Polls';
+import SettingsPage from './pages/SettingsPage';
+import SignupPage from './pages/SignupPage';
+import TrackResponses from './pages/TrackResponses';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState('');
+  const [petitionStats, setPetitionStats] = useState({
+    myPetitions: 0,
+    signedPetitions: 0,
+    activePetitions: 0,
+  });
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    
-    if (token && user) {
-      setIsAuthenticated(true);
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.role) {
+      setUserRole(user.role);
     }
-    setLoading(false);
   }, []);
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
   return (
-    <Router>
+    <AuthProvider>
       <Routes>
-        {/* Always show LandingPage for root path */}
+        {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
-        
-        {/* Redirect to dashboard if already authenticated */}
-        <Route 
-          path="/login" 
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+
+        {/* Citizen-only Protected Routes */}
+        <Route
+          path="/dashboard/*"
           element={
-            !isAuthenticated ? 
-            <LoginPage setIsAuthenticated={setIsAuthenticated} /> : 
-            <Navigate to="/dashboard" replace />
-          } 
-        />
-        <Route 
-          path="/signup" 
+            <ProtectedRoute>
+              <DashboardLayout
+                myPetitionsCount={petitionStats.myPetitions}
+                signedPetitionsCount={petitionStats.signedPetitions}
+                activePetitionsCount={petitionStats.activePetitions}
+              />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="petitions" element={<Petitions />} />
+          <Route path="polls" element={<Polls />} />
+          <Route path="officials" element={<Officials />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="create-petitions" element={<CreatePetitions />} />
+          <Route path="participate-polls" element={<ParticipatePolls />} />
+          <Route path="track-responses" element={<TrackResponses />} />
+        </Route>
+
+        {/* Official-only Protected Route */}
+        <Route
+          path="/official-dashboard/*"
           element={
-            !isAuthenticated ? 
-            <SignUpPage setIsAuthenticated={setIsAuthenticated} /> : 
-            <Navigate to="/dashboard" replace />
-          } 
+            <ProtectedRoute>
+              <OfficialDashboard />
+            </ProtectedRoute>
+          }
         />
-        
-        {/* Protect dashboard routes */}
-        <Route 
-          path="/dashboard/*" 
-          element={
-            isAuthenticated ? 
-            <DashboardLayout setIsAuthenticated={setIsAuthenticated} /> : 
-            <Navigate to="/login" replace />
-          } 
-        />
-        
-        {/* Catch all route */}
+
+        {/* Fallback for undefined routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Router>
+    </AuthProvider>
   );
 }
 

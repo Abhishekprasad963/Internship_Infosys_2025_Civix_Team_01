@@ -1,43 +1,93 @@
+// import express from "express";
+// import {
+//   debugUsers,
+//   forgotPassword,
+//   login,
+//   resetPassword,
+//   signup,
+//   testLogin,
+//   verifyOtp
+// } from "../controllers/authController.js";
+// import authMiddleware from "../middleware/authMiddleware.js";
+
+// const router = express.Router();
+
+// console.log("✅ Auth routes loaded");
+
+// // Add proper middleware logging
+// router.use((req, res, next) => {
+//   console.log(`📨 ${req.method} ${req.path}`, req.body);
+//   next();
+// });
+
+// // Public routes
+// router.post("/signup", signup);
+// router.post("/login", login);
+// router.post("/forgot-password", forgotPassword);
+// router.post("/verify-otp", verifyOtp);
+// router.post("/reset-password", resetPassword);
+
+// // Debug routes (for testing)
+// router.get("/debug-users", debugUsers);
+// router.post("/test-login", testLogin);
+
+// // Test route
+// router.post("/test", (req, res) => {
+//   console.log("✅ Test POST received:", req.body);
+//   res.json({ message: "POST test successful", data: req.body });
+// });
+
+// // Protected routes
+// router.get("/me", authMiddleware, (req, res) => {
+//   res.json({ 
+//     message: "Protected route access granted", 
+//     user: req.user 
+//   });
+// });
+
+// // Health check
+// router.get("/health", (req, res) => {
+//   res.json({ 
+//     status: "OK", 
+//     timestamp: new Date().toISOString(),
+//     service: "Auth Service"
+//   });
+// });
+
+// export default router;
+
+
+
+
+
+// backend/routes/auth.js
+
 import express from "express";
 import {
-  debugUsers,
   forgotPassword,
   login,
   resetPassword,
   signup,
-  testLogin,
-  verifyOtp
+  verifyOtp,
 } from "../controllers/authController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-console.log("✅ Auth routes loaded");
-
-// Add proper middleware logging
+// Middleware to log all incoming requests
 router.use((req, res, next) => {
-  console.log(`📨 ${req.method} ${req.path}`, req.body);
+  console.log(`📨 [AUTH] ${req.method} ${req.path}`);
   next();
 });
 
-// Public routes
+// --- PUBLIC ROUTES ---
 router.post("/signup", signup);
 router.post("/login", login);
 router.post("/forgot-password", forgotPassword);
 router.post("/verify-otp", verifyOtp);
 router.post("/reset-password", resetPassword);
 
-// Debug routes (for testing)
-router.get("/debug-users", debugUsers);
-router.post("/test-login", testLogin);
-
-// Test route
-router.post("/test", (req, res) => {
-  console.log("✅ Test POST received:", req.body);
-  res.json({ message: "POST test successful", data: req.body });
-});
-
-// Protected routes
+// --- PROTECTED ROUTE ---
 router.get("/me", authMiddleware, (req, res) => {
   res.json({ 
     message: "Protected route access granted", 
@@ -45,13 +95,88 @@ router.get("/me", authMiddleware, (req, res) => {
   });
 });
 
-// Health check
+// --- DEBUG ROUTES (REMOVED) ---
+// router.get("/debug-users", debugUsers);
+// router.post("/test-login", testLogin);
+
+
+// --- HEALTH CHECK ---
 router.get("/health", (req, res) => {
   res.json({ 
     status: "OK", 
-    timestamp: new Date().toISOString(),
-    service: "Auth Service"
+    service: "Auth Service", 
+    timestamp: new Date().toISOString() 
   });
 });
 
 export default router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import express from "express";
+// import {
+//   debugUsers,
+//   forgotPassword,
+//   login,
+//   resetPassword,
+//   signup,
+//   testLogin,
+//   verifyOtp
+// } from "../controllers/authController.js";
+// import authMiddleware from "../middleware/authMiddleware.js";
+
+// const router = express.Router();
+
+// console.log("✅ Auth routes loaded");
+
+// // Middleware logging
+// router.use((req, res, next) => {
+//   console.log(`📨 ${req.method} ${req.path}`, req.body);
+//   next();
+// });
+
+// // Public routes
+// router.post("/signup", signup);
+// router.post("/login", login);
+// router.post("/forgot-password", forgotPassword);
+// router.post("/verify-otp", verifyOtp);
+// router.post("/reset-password", resetPassword);
+
+// // Debug routes
+// router.get("/debug-users", debugUsers);
+// router.post("/test-login", testLogin);
+
+// // Protected route
+// router.get("/me", authMiddleware, (req, res) => {
+//   res.json({ message: "Protected route access granted", user: req.user });
+// });
+
+// // Health check
+// router.get("/health", (req, res) => {
+//   res.json({ status: "OK", service: "Auth Service", timestamp: new Date().toISOString() });
+// });
+
+// export default router;

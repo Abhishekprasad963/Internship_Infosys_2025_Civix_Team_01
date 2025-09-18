@@ -19,3 +19,24 @@ export interface MenuItem {
   label: string;
   icon: any;
 }
+
+// types.ts
+export interface DashboardProps {
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
+  myPetitionsCount?: number;
+  signedPetitionsCount?: number;
+  activePetitionsCount?: number;
+}
+
+export interface Category {
+  id: string;
+  label: string;
+  color: string;
+}
+
+export interface MenuItem {
+  id: string;
+  label: string;
+  icon: any;
+}

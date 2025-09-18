@@ -1,131 +1,151 @@
+
+// // // import mongoose from 'mongoose';
+
+// // // const userSchema = new mongoose.Schema({
+// // //   fullName: {
+// // //     type: String,
+// // //     required: true,
+// // //     trim: true
+// // //   },
+// // //   email: {
+// // //     type: String,
+// // //     required: true,
+// // //     unique: true,
+// // //     lowercase: true,
+// // //     trim: true
+// // //   },
+// // //   password: {
+// // //     type: String,
+// // //     required: true,
+// // //     minlength: 6
+// // //   },
+// // //   role: {
+// // //     type: String,
+// // //     enum: ["citizen", "official"],
+// // //     default: "citizen"
+// // //   },
+// // //   // Add OTP fields for password reset
+// // //   otp: {
+// // //     type: String,
+// // //     default: null
+// // //   },
+// // //   otpExpiry: {
+// // //     type: Date,
+// // //     default: null
+// // //   }
+// // // }, {
+// // //   timestamps: true
+// // // });
+
+// // // // Remove password when converting to JSON
+// // // userSchema.methods.toJSON = function() {
+// // //   const user = this.toObject();
+// // //   delete user.password;
+// // //   delete user.otp;
+// // //   delete user.otpExpiry;
+// // //   return user;
+// // // };
+
+// // // // Create and export the model
+// // // const User = mongoose.model("User", userSchema);
+// // // export default User;
+// // import bcrypt from "bcryptjs";
+// // import mongoose from "mongoose";
+
+// // const userSchema = new mongoose.Schema({
+// //   fullName: { type: String, required: true, trim: true },
+// //   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+// //   password: { type: String, required: true, minlength: 6 },
+// //   role: { type: String, enum: ["citizen", "official"], default: "citizen" },
+// //   otp: { type: String, default: null },
+// //   otpExpiry: { type: Date, default: null }
+// // }, { timestamps: true });
+
+// // // Hash password before save
+// // userSchema.pre("save", async function (next) {
+// //   if (!this.isModified("password")) return next();
+// //   this.password = await bcrypt.hash(this.password, 10);
+// //   next();
+// // });
+
+// // // Hide sensitive fields
+// // userSchema.methods.toJSON = function () {
+// //   const obj = this.toObject();
+// //   delete obj.password;
+// //   delete obj.otp;
+// //   delete obj.otpExpiry;
+// //   return obj;
+// // };
+
+// // const User = mongoose.model("User", userSchema);
+// // export default User;
+
+
+
+// // User.js
+// import bcrypt from "bcryptjs";
 // import mongoose from "mongoose";
 
 // const userSchema = new mongoose.Schema({
-//   fullName: {
-//     type: String,
-//     required: true,
-//     trim: true
-//   },
-//   email: {
-//     type: String,
-//     required: true,
-//     unique: true,
-//     lowercase: true,
-//     trim: true
-//   },
-//   password: {
-//     type: String,
-//     required: true,
-//     minlength: 6
-//   },
-//   role: {
-//     type: String,
-//     enum: ['citizen', 'official'],
-//     default: 'citizen'
-//   },
-//   otp: String,
-//   otpExpiry: Date,
-//   location: {
-//     type: String,
-//     trim: true
-//   }
-// }, {
-//   timestamps: true
+//   fullName: { type: String, required: true, trim: true },
+//   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+//   password: { type: String, required: true, minlength: 6 },
+//   role: { type: String, enum: ["citizen", "official"], default: "citizen" },
+//   otp: { type: String, default: null },
+//   otpExpiry: { type: Date, default: null }
+// }, { timestamps: true });
+
+// userSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) return next();
+//   this.password = await bcrypt.hash(this.password, 10);
+//   next();
 // });
 
-// export default mongoose.model("User", userSchema);
+// userSchema.methods.toJSON = function () {
+//   const obj = this.toObject();
+//   delete obj.password;
+//   delete obj.otp;
+//   delete obj.otpExpiry;
+//   return obj;
+// };
 
-
+// const User = mongoose.model("User", userSchema);
+// export default User;
 
 
 // models/User.js
+
+import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  fullName: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6
-  },
-  role: {
-    type: String,
-    enum: ["Citizen", "Public Official"],
-    default: "Citizen"
-  },
-  otp: {
-    type: String,
-    default: null
-  },
-  otpExpiry: {
-    type: Date,
-    default: null
-  }
-}, {
-  timestamps: true
+  fullName: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  password: { type: String, required: true, minlength: 6 },
+  role: { type: String, enum: ["citizen", "official"], default: "citizen" },
+  
+  // ✅ ADD THIS LINE
+  profilePic: { type: String, default: null },
+
+  otp: { type: String, default: null },
+  otpExpiry: { type: Date, default: null }
+}, { timestamps: true });
+
+// This hook automatically hashes the password before saving
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
 });
 
-// Remove password when converting to JSON
-userSchema.methods.toJSON = function() {
-  const user = this.toObject();
-  delete user.password;
-  return user;
+// This method removes sensitive data when sending the user object to the frontend
+userSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  delete obj.otp;
+  delete obj.otpExpiry;
+  return obj;
 };
 
-export default mongoose.model("User", userSchema);
-
-
-// import mongoose from "mongoose";
-
-// const userSchema = new mongoose.Schema({
-//   fullName: { 
-//     type: String, 
-//     required: true,
-//     trim: true
-//   },
-//   email: { 
-//     type: String, 
-//     required: true, 
-//     unique: true,
-//     lowercase: true,
-//     trim: true
-//   },
-//   password: { 
-//     type: String, 
-//     required: true 
-//   },
-//   role: { 
-//     type: String, 
-//     enum: ["Citizen", "Public Official"], 
-//     default: "Citizen" 
-//   },
-//   otp: {
-//     type: String,
-//     default: null
-//   },
-//   otpExpiry: {
-//     type: Date,
-//     default: null
-//   },
-//   createdAt: {
-//     type: Date,
-//     default: Date.now
-//   }
-// });
-
-// // Index for better performance
-// userSchema.index({ email: 1 });
-// userSchema.index({ otpExpiry: 1 }, { expireAfterSeconds: 0 }); // Auto-clean expired OTPs
-
-// export default mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;
