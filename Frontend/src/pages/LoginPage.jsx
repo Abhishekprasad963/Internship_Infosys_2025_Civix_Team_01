@@ -177,7 +177,7 @@ export default function LoginPage() {
                   <button type="button" onClick={() => currentStep > 1 ? setCurrentStep(currentStep - 1) : setShowForgotPasswordModal(false)} className="flex-1 py-2 px-4 bg-gray-300 text-gray-700 rounded-md">
                     {currentStep > 1 ? "Back" : "Cancel"}
                   </button>
-                  <button type="submit" disabled={isLoading} className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-md">{isLoading ? "Processing..." : (currentStep === 1 ? "Send OTP" : (currentStep === 2 ? "Verify OTP" : "Reset Password"))}</button>
+                  <button type="submit" disabled={isLoading} className="flex-1 py-2 px-4 bg-green-600 text-white rounded-md">{isLoading ? "Processing..." : (currentStep === 1 ? "Send OTP" : (currentStep === 2 ? "Verify OTP" : "Reset Password"))}</button>
                 </div>
               </form>
             </div>
