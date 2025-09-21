@@ -51,6 +51,7 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+
 // Helper to normalize category input
 const normalizeCategory = (category) => {
   if (!category) return null;
@@ -71,75 +72,6 @@ const normalizeCategory = (category) => {
   return categoryMap[lower] || null;
 };
 
-// // ========================
-// // Schemas & Models
-// // ========================
-// const pollSchema = new mongoose.Schema({
-//   question: { type: String, required: true },
-//   options: [{ option: String, votes: { type: Number, default: 0 } }],
-//   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-// });
-// const Poll = mongoose.model("Poll", pollSchema);
-
-// const notificationSchema = new mongoose.Schema({
-//   message: { type: String, required: true },
-//   date: { type: Date, default: Date.now },
-// });
-// const Notification = mongoose.model("Notification", notificationSchema);
-
-// const engagementSchema = new mongoose.Schema({
-//   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-//   activity: { type: String, required: true },
-//   date: { type: Date, default: Date.now },
-// });
-// const Engagement = mongoose.model("Engagement", engagementSchema);
-
-// ========================
-// Auth Routes
-// ========================
-
-// app.post("/api/auth/signup", async (req, res) => {
-//   try {
-//     const { fullName, email, password, role } = req.body;
-//     if (!fullName || !email || !password) return res.status(400).json({ message: "All fields are required" });
-
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser) return res.status(400).json({ message: "User already exists" });
-
-//     // FIX: Removed password hashing here. The User model's pre('save') hook handles it.
-//     const user = new User({ fullName, email, password, role: (role || "citizen").toLowerCase() });
-//     await user.save();
-
-//     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: "7d" });
-
-//     res.status(201).json({ token, user: { id: user._id, fullName: user.fullName, email: user.email, role: user.role } });
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-// app.post("/api/auth/login", async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const user = await User.findOne({ email });
-//     if (!user) return res.status(400).json({ message: "Invalid credentials" });
-
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-
-//     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: "7d" });
-
-//     res.json({ message: "Login successful", user: { id: user._id, fullName: user.fullName, email: user.email, role: user.role }, token });
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-app.get("/api/auth/me", authMiddleware, (req, res) => res.json({ user: req.user }));
-app.use("/api/auth", authRoutes);
-// ========================
-// Petition Routes
-// ========================
 
 // Get all petitions
 app.get("/api/petitions", async (req, res) => {
@@ -286,24 +218,6 @@ app.get("/api/dashboard/stats", authMiddleware, async (req, res) => {
   }
 });
 
-// // ========================
-// // Poll Routes
-// // ========================
-// app.post("/api/polls", authMiddleware, async (req, res) => {
-//   const { question, options } = req.body;
-//   const newPoll = new Poll({
-//     question,
-//     options: options.map((opt) => ({ option: opt, votes: 0 })),
-//     createdBy: req.user._id,
-//   });
-//   await newPoll.save();
-//   res.json(newPoll);
-// });
-
-// app.get("/api/polls", async (req, res) => {
-//   const polls = await Poll.find();
-//   res.json(polls);
-// });
 
 // ========================
 // Notifications Routes

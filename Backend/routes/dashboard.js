@@ -2,6 +2,7 @@
 
 import express from 'express';
 import Petition from '../models/Petition.js';
+import { verifyToken } from "../middleware/auth.js"; 
 
 const router = express.Router();
 
