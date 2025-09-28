@@ -1,1156 +1,337 @@
-// import { useEffect, useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-
-// const OfficialDashboard = () => {
-//   // --- STATE MANAGEMENT ---
-//   const [activeTab, setActiveTab] = useState('dashboard');
-//   const [activeFilter, setActiveFilter] = useState('all');
-//   const [notifications, setNotifications] = useState([]);
-//   const [petitions, setPetitions] = useState([]);
-//   const [polls, setPolls] = useState([]);
-//   const [stats, setStats] = useState({
-//     petitions: 0,
-//     polls: 0,
-//     responseRate: '0%',
-//     satisfaction: 0,
-//   });
-//   const [engagement, setEngagement] = useState({
-//     totalInteractions: 0,
-//     satisfactionRate: '0%',
-//     avgResponseTime: 0,
-//   });
-//   const [userInfo, setUserInfo] = useState(null);
-//   const [showResponseModal, setShowResponseModal] = useState(false);
-//   const [selectedPetition, setSelectedPetition] = useState(null);
-//   const [responseForm, setResponseForm] = useState({
-//     message: '',
-//     responseStatus: 'under-consideration',
-//     estimatedCompletion: ''
-//   });
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-
-//   // Poll states
-//   const [showPollModal, setShowPollModal] = useState(false);
-//   const [pollForm, setPollForm] = useState({ question: '', options: ['', ''] });
-//   const [isPollSubmitting, setIsPollSubmitting] = useState(false);
-//   const [showResultsModal, setShowResultsModal] = useState(false);
-//   const [selectedPollResults, setSelectedPollResults] = useState(null);
-
-//   const navigate = useNavigate();
-
-//   // --- AUTHENTICATION & DATA LOADING ---
-
-//   useEffect(() => {
-//     const storedUserInfo = localStorage.getItem('user');
-//     const userRole = localStorage.getItem('userRole');
-
-//     if (storedUserInfo && userRole === 'official') {
-//       try {
-//         setUserInfo(JSON.parse(storedUserInfo));
-//       } catch (e) {
-//         console.error("Failed to parse user info from localStorage", e);
-//         navigate('/login');
-//       }
-//     } else {
-//       navigate('/login');
-//     }
-//   }, [navigate]);
-
-//   useEffect(() => {
-//     if (userInfo) {
-//       fetchNotifications();
-//       fetchPetitions();
-//       fetchPolls();
-//       fetchStats();
-//       fetchEngagement();
-//     }
-//   }, [userInfo]);
-
-//   // --- API FETCHING FUNCTIONS ---
-
-//   const fetchNotifications = async () => {
-//     try {
-//       const response = await fetch('http://localhost:5000/api/dashboard/notifications');
-//       const data = await response.json();
-//       setNotifications(Array.isArray(data) ? data : []);
-//     } catch (err) {
-//       console.error('Failed to fetch notifications:', err);
-//       setNotifications([]);
-//     }
-//   };
-
-//   const fetchPetitions = async () => {
-//     try {
-//       const response = await fetch('http://localhost:5000/api/petitions');
-//       const data = await response.json();
-//       setPetitions(data.petitions && Array.isArray(data.petitions) ? data.petitions : []);
-//     } catch (err) {
-//       console.error('Failed to fetch petitions:', err);
-//       setPetitions([]);
-//     }
-//   };
-
-//   const fetchPolls = async () => {
-//     try {
-//       const response = await fetch('http://localhost:5000/api/polls');
-//       const data = await response.json();
-//       setPolls(Array.isArray(data) ? data : []);
-//     } catch (err) {
-//       console.error('Failed to fetch polls:', err);
-//       setPolls([]);
-//     }
-//   };
-
-//   const fetchStats = async () => {
-//     try {
-//       const response = await fetch('http://localhost:5000/api/dashboard/summary');
-//       const data = await response.json();
-//       setStats({
-//         petitions: data.petitions || 0,
-//         polls: data.polls || 0,
-//         responseRate: data.responseRate || '0%',
-//         satisfaction: data.satisfaction || 0,
-//       });
-//     } catch (err) {
-//       console.error('Failed to fetch stats:', err);
-//     }
-//   };
-
-//   const fetchEngagement = async () => {
-//     try {
-//       const response = await fetch('http://localhost:5000/api/dashboard/engagement');
-//       const data = await response.json();
-//       setEngagement(data);
-//     } catch (err) {
-//       console.error('Failed to fetch engagement:', err);
-//     }
-//   };
-
-//   // --- HANDLERS ---
-
-//   const handleNavClick = (tab) => setActiveTab(tab);
-
-//   const handleSignOut = () => {
-//     localStorage.removeItem('user');
-//     localStorage.removeItem('userRole');
-//     localStorage.removeItem('token');
-//     navigate('/');
-//   };
-
-//   const respondToPetition = (petition) => {
-//     setSelectedPetition(petition);
-//     setShowResponseModal(true);
-//     setResponseForm({
-//         message: '',
-//         responseStatus: 'under-consideration',
-//         estimatedCompletion: ''
-//     });
-//   };
-
-//   const closeResponseModal = () => {
-//     setShowResponseModal(false);
-//     setSelectedPetition(null);
-//   };
-  
-//   const handleFormChange = (e) => {
-//     const { name, value } = e.target;
-//     setResponseForm(prev => ({ ...prev, [name]: value }));
-//   };
-
-//   const submitResponse = async () => {
-//     if (!selectedPetition || !responseForm.message.trim()) {
-//       alert('Please fill in the response message');
-//       return;
-//     }
-//     setIsSubmitting(true);
-//     try {
-//       const response = await fetch(`http://localhost:5000/api/petitions/${selectedPetition._id}/respond`, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-//         body: JSON.stringify({
-//           ...responseForm,
-//           respondedBy: userInfo?.fullName || 'Public Official'
-//         })
-//       });
-//       const data = await response.json();
-//       if (response.ok) {
-//         alert('Response submitted successfully!');
-//         closeResponseModal();
-//         fetchPetitions();
-//       } else {
-//         alert('Failed to submit response: ' + (data.error || 'Unknown error'));
-//       }
-//     } catch (error) {
-//       console.error('Error submitting response:', error);
-//       alert('Failed to submit response. Please try again.');
-//     } finally {
-//       setIsSubmitting(false);
-//     }
-//   };
-  
-//   const handlePollOptionChange = (idx, value) => {
-//     const updated = [...pollForm.options];
-//     updated[idx] = value;
-//     setPollForm({ ...pollForm, options: updated });
-//   };
-  
-//   const addPollOption = () => {
-//     setPollForm({ ...pollForm, options: [...pollForm.options, ''] });
-//   };
-
-//   const submitPoll = async () => {
-//     if (!pollForm.question.trim() || pollForm.options.some(opt => !opt.trim())) {
-//       alert('Please enter a question and fill all options');
-//       return;
-//     }
-//     setIsPollSubmitting(true);
-//     try {
-//       // FIX: Create a payload that includes the 'title' field, copying it from the question.
-//       const payload = {
-//         ...pollForm,
-//         title: pollForm.question 
-//       };
-
-//       const res = await fetch('http://localhost:5000/api/polls', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-//         body: JSON.stringify(payload), // Send the new payload
-//       });
-//       const data = await res.json();
-//       if (res.ok) {
-//         alert('Poll created successfully');
-//         setShowPollModal(false);
-//         setPollForm({ question: '', options: ['', ''] });
-//         fetchPolls();
-//       } else {
-//         alert(data.error || 'Failed to create poll');
-//       }
-//     } catch (err) {
-//       console.error('Error creating poll:', err);
-//     } finally {
-//       setIsPollSubmitting(false);
-//     }
-//   };
-  
-//   const viewResults = async (pollId) => {
-//     try {
-//       const res = await fetch(`http://localhost:5000/api/polls/${pollId}`);
-//       const data = await res.json();
-//       if (res.ok) {
-//         setSelectedPollResults(data);
-//         setShowResultsModal(true);
-//       } else {
-//         alert(data.error || 'Failed to fetch results');
-//       }
-//     } catch (err) {
-//       console.error('Error fetching poll results:', err);
-//     }
-//   };
-
-//   const closePoll = async (pollId) => {
-//     if (!window.confirm('Are you sure you want to close this poll?')) return;
-//     try {
-//       const res = await fetch(`http://localhost:5000/api/polls/${pollId}`, {
-//          method: 'DELETE',
-//          headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
-//         });
-//       const data = await res.json();
-//       if (res.ok) {
-//         alert(data.message || 'Poll closed');
-//         fetchPolls();
-//       } else {
-//         alert(data.error || 'Failed to close poll');
-//       }
-//     } catch (err) {
-//       console.error('Error closing poll:', err);
-//     }
-//   };
-
-//   // --- HELPERS & RENDER LOGIC ---
-//   const getStatusConfig = (status) => {
-//     const configs = {
-//       'pending': { class: 'bg-yellow-100 text-yellow-700', text: 'Pending' },
-//       'active': { class: 'bg-yellow-100 text-yellow-700', text: 'Pending' },
-//       'under-review': { class: 'bg-blue-100 text-blue-700', text: 'Under Review' },
-//       'responded': { class: 'bg-green-100 text-green-700', text: 'Responded' },
-//     };
-//     return configs[status] || configs['pending'];
-//   };
-
-//   const renderTabContent = () => {
-//     switch (activeTab) {
-//       case 'dashboard':
-//         return (
-//           <>
-//             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-//                 <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-green-400">
-//                     <div className="text-gray-600 text-sm">Total Petitions</div>
-//                     <div className="text-3xl font-bold text-green-800">{stats.petitions}</div>
-//                 </div>
-//                 <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-blue-400">
-//                     <div className="text-gray-600 text-sm">Active Polls</div>
-//                     <div className="text-3xl font-bold text-green-800">{stats.polls}</div>
-//                 </div>
-//                 <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-purple-400">
-//                     <div className="text-gray-600 text-sm">Response Rate</div>
-//                     <div className="text-3xl font-bold text-green-800">{stats.responseRate}</div>
-//                 </div>
-//                 <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-orange-400">
-//                     <div className="text-gray-600 text-sm">Community Satisfaction</div>
-//                     <div className="text-3xl font-bold text-green-800">{stats.satisfaction}%</div>
-//                 </div>
-//             </div>
-//             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-//                 <div className="bg-white rounded-2xl p-6 shadow-lg">
-//                     <h2 className="text-xl font-bold text-green-800 mb-4">Recent Petitions</h2>
-//                     {petitions.slice(0, 5).map(p => (
-//                         <div key={p._id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg mb-2">
-//                             <div>
-//                                 <p className="font-medium text-green-800">{p.title}</p>
-//                                 <p className="text-xs text-gray-500">{p.signatures?.length || 0} signatures</p>
-//                             </div>
-//                             <span className={`px-2 py-1 rounded-full text-xs ${getStatusConfig(p.status).class}`}>
-//                                 {getStatusConfig(p.status).text}
-//                             </span>
-//                         </div>
-//                     ))}
-//                 </div>
-//                  <div className="bg-white rounded-2xl p-6 shadow-lg">
-//                     <h2 className="text-xl font-bold text-green-800 mb-4">Community Engagement</h2>
-//                      <div className="space-y-4">
-//                         <div className="flex justify-between items-center"><span className="text-gray-600">Total Interactions</span><span className="font-bold text-green-800">{engagement.totalInteractions}</span></div>
-//                         <div className="flex justify-between items-center"><span className="text-gray-600">Satisfaction Rate</span><span className="font-bold text-green-800">{engagement.satisfactionRate}</span></div>
-//                         <div className="flex justify-between items-center"><span className="text-gray-600">Avg Response Time</span><span className="font-bold text-green-800">{engagement.avgResponseTime} days</span></div>
-//                     </div>
-//                 </div>
-//             </div>
-//           </>
-//         );
-//       case 'petitions':
-//         return (
-//             <div className="bg-white rounded-2xl p-6 shadow-lg">
-//                 <div className="flex justify-between items-center mb-6">
-//                     <h2 className="text-2xl font-bold text-green-800">All Petitions</h2>
-//                 </div>
-//                 <div className="space-y-4">
-//                     {petitions.length > 0 ? petitions.map((p) => (
-//                         <div key={p._id} className="flex justify-between items-start p-4 border-b border-gray-100 last:border-b-0">
-//                             <div className="flex-1">
-//                                 <div className="font-semibold text-green-800 mb-1">{p.title}</div>
-//                                 <div className="text-xs text-gray-600 mb-2">
-//                                     Submitted by {p.creator?.fullName || 'Anonymous'} • {p.signatures?.length || 0} signatures
-//                                 </div>
-//                                 <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${getStatusConfig(p.status).class}`}>
-//                                     {getStatusConfig(p.status).text}
-//                                 </span>
-//                             </div>
-//                             <button
-//                                 onClick={() => respondToPetition(p)}
-//                                 disabled={p.status === 'responded'}
-//                                 className="ml-4 px-4 py-2 rounded-md text-sm font-semibold transition-all duration-300 bg-green-800 text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-//                             >
-//                                 {p.status === 'responded' ? 'Viewed' : 'Respond'}
-//                             </button>
-//                         </div>
-//                     )) : (
-//                         <div className="text-center py-8 text-gray-500">No petitions found.</div>
-//                     )}
-//                 </div>
-//             </div>
-//         );
-//       case 'polls':
-//         return (
-//           <div className="bg-white rounded-2xl p-6 shadow-lg">
-//             <div className="flex justify-between items-center mb-6">
-//               <h2 className="text-2xl font-bold text-green-800">Polls Management</h2>
-//               <button onClick={() => setShowPollModal(true)} className="bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-//                 Create New Poll
-//               </button>
-//             </div>
-//             <div className="space-y-4">
-//               {polls.length > 0 ? polls.map((poll) => (
-//                 <div key={poll._id} className="p-4 border border-gray-200 rounded-lg">
-//                   <div className="font-semibold text-green-800 mb-2">{poll.question}</div>
-//                   <div className="flex justify-between items-center">
-//                     <span className="text-sm text-gray-500">Created: {new Date(poll.createdAt).toLocaleDateString()}</span>
-//                     <div className="flex gap-2">
-//                       <button onClick={() => viewResults(poll._id)} className="px-3 py-1 bg-blue-500 text-white rounded text-sm">View Results</button>
-//                       <button onClick={() => closePoll(poll._id)} className="px-3 py-1 bg-red-500 text-white rounded text-sm">Close Poll</button>
-//                     </div>
-//                   </div>
-//                 </div>
-//               )) : (
-//                 <div className="text-center py-8 text-gray-500">No polls have been created yet.</div>
-//               )}
-//             </div>
-//           </div>
-//         );
-//       default:
-//         return <div className="text-center p-10 bg-white rounded-lg shadow-md">Content for {activeTab} is coming soon.</div>;
-//     }
-//   };
-
-//   // --- JSX RENDER ---
-//   if (!userInfo) {
-//     return (
-//       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-green-50">
-//         <div className="text-xl font-bold text-green-800">Loading Official Dashboard...</div>
-//       </div>
-//     );
-//   }
-
-//   const firstName = userInfo?.fullName ? userInfo.fullName.split(' ')[0] : 'Official';
-//   const navigationItems = [
-//     { id: 'dashboard', icon: '🏠', label: 'Dashboard', badge: null },
-//     { id: 'petitions', icon: '📝', label: 'Petitions', badge: petitions.filter(p => p.status === 'pending' || p.status === 'active').length },
-//     { id: 'polls', icon: '📊', label: 'Polls', badge: polls.length },
-//     { id: 'settings', icon: '⚙️', label: 'Settings', badge: null }
-//   ];
-
-//   return (
-//     <>
-//       <div className="min-h-screen bg-gradient-to-br from-green-100 to-green-50 flex">
-//         <div className="w-80 bg-gradient-to-b from-green-300 to-green-400 p-6 shadow-xl flex flex-col">
-//           <div className="flex items-center mb-8 text-green-800">
-//             <div className="text-3xl mr-3">🏛️</div>
-//             <div className="text-2xl font-bold">CIVIX</div>
-//           </div>
-//           <div className="bg-white bg-opacity-30 rounded-xl p-5 mb-8 backdrop-blur-sm">
-//             <div className="bg-green-800 text-white px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block">VERIFIED OFFICIAL</div>
-//             <div className="text-lg font-bold text-green-800 mb-1">{userInfo?.fullName || 'Official User'}</div>
-//             <div className="text-green-700 text-sm mb-2">{userInfo?.email || 'No email'}</div>
-//           </div>
-//           <nav className="flex-1">
-//             {navigationItems.map((item) => (
-//               <div
-//                 key={item.id}
-//                 className={`flex items-center p-4 m-2 rounded-lg cursor-pointer transition-all duration-300 text-green-800 font-medium hover:bg-white hover:bg-opacity-40 hover:translate-x-1 ${activeTab === item.id ? 'bg-white bg-opacity-50 shadow-md' : ''}`}
-//                 onClick={() => handleNavClick(item.id)}
-//               >
-//                 <span className="mr-3 text-lg">{item.icon}</span>
-//                 <span className="flex-1">{item.label}</span>
-//                 {item.badge > 0 && (
-//                   <span className="bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center ml-2">{item.badge}</span>
-//                 )}
-//               </div>
-//             ))}
-//           </nav>
-//           <div className="mt-8 pt-5 border-t border-white border-opacity-30">
-//             <div className="flex items-center p-4 m-2 rounded-lg cursor-pointer text-green-800 font-medium hover:bg-white hover:bg-opacity-40" onClick={handleSignOut}>
-//               <span className="mr-3 text-lg">🚪</span> Sign Out
-//             </div>
-//           </div>
-//         </div>
-//         <div className="flex-1 p-8 overflow-y-auto">
-//           <h1 className="text-3xl font-bold mb-6 text-green-800">
-//             {activeTab === 'dashboard' ? `Welcome back, ${firstName}!` : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-//           </h1>
-//           {renderTabContent()}
-//         </div>
-//       </div>
-
-//       {/* --- MODALS --- */}
-//       {showResponseModal && selectedPetition && (
-//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-//           <div className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-//             <div className="flex justify-between items-center mb-4">
-//               <h3 className="text-xl font-bold text-green-800">Respond to Petition</h3>
-//               <button onClick={closeResponseModal} className="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-//             </div>
-//             <div className="bg-gray-50 rounded-lg p-4 mb-6">
-//               <h4 className="font-semibold text-green-800 mb-2">{selectedPetition.title}</h4>
-//               <p className="text-gray-600 text-sm mb-2">Submitted by: {selectedPetition.creator?.fullName}</p>
-//               <p className="text-gray-700">{selectedPetition.description}</p>
-//             </div>
-//             <div>
-//               <div className="mb-4">
-//                 <label className="block text-sm font-medium text-gray-700 mb-2">Response Status</label>
-//                 <select name="responseStatus" value={responseForm.responseStatus} onChange={handleFormChange} className="w-full p-3 border border-gray-300 rounded-lg">
-//                   <option value="under-consideration">Under Consideration</option>
-//                   <option value="approved">Approved</option>
-//                   <option value="rejected">Rejected</option>
-//                 </select>
-//               </div>
-//               <div className="mb-4">
-//                 <label className="block text-sm font-medium text-gray-700 mb-2">Response Message *</label>
-//                 <textarea name="message" value={responseForm.message} onChange={handleFormChange} rows={5} placeholder="Provide a detailed response..." className="w-full p-3 border border-gray-300 rounded-lg" />
-//               </div>
-//               <div className="flex gap-3">
-//                 <button type="button" onClick={submitResponse} disabled={isSubmitting} className="flex-1 bg-green-800 text-white py-3 px-4 rounded-lg hover:bg-green-700 disabled:bg-green-400">
-//                   {isSubmitting ? 'Submitting...' : 'Submit Response'}
-//                 </button>
-//                 <button type="button" onClick={closeResponseModal} className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600">
-//                   Cancel
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {showPollModal && (
-//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-//           <div className="bg-white rounded-2xl p-6 max-w-lg w-full">
-//             <div className="flex justify-between items-center mb-4">
-//               <h3 className="text-xl font-bold text-green-800">Create New Poll</h3>
-//               <button onClick={() => setShowPollModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-//             </div>
-//             <div className="space-y-3">
-//               <input type="text" placeholder="Poll question" value={pollForm.question} onChange={(e) => setPollForm({ ...pollForm, question: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg" />
-//               {pollForm.options.map((opt, idx) => (
-//                 <input key={idx} type="text" placeholder={`Option ${idx + 1}`} value={opt} onChange={(e) => handlePollOptionChange(idx, e.target.value)} className="w-full p-2 border border-gray-300 rounded-lg" />
-//               ))}
-//               <button type="button" onClick={addPollOption} className="text-green-700 text-sm">+ Add Option</button>
-//               <div className="flex gap-3 mt-4">
-//                 <button onClick={submitPoll} disabled={isPollSubmitting} className="flex-1 bg-green-800 text-white py-3 px-4 rounded-lg hover:bg-green-700 disabled:bg-green-400">
-//                   {isPollSubmitting ? 'Creating...' : 'Create Poll'}
-//                 </button>
-//                 <button onClick={() => setShowPollModal(false)} className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600">
-//                   Cancel
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {showResultsModal && selectedPollResults && (
-//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-//           <div className="bg-white rounded-2xl p-6 max-w-lg w-full">
-//             <div className="flex justify-between items-center mb-4">
-//               <h3 className="text-xl font-bold text-green-800">Poll Results</h3>
-//               <button onClick={() => { setShowResultsModal(false); setSelectedPollResults(null); }} className="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-//             </div>
-//             <div className="mb-4">
-//               <div className="font-semibold text-green-800 mb-2">{selectedPollResults.question}</div>
-//               <div className="text-sm text-gray-500 mb-3">Created: {new Date(selectedPollResults.createdAt).toLocaleDateString()}</div>
-//               <div className="space-y-2">
-//                 {Array.isArray(selectedPollResults.options) && selectedPollResults.options.map((opt, i) => (
-//                   <div key={i} className="flex justify-between items-center">
-//                     <div className="text-sm text-gray-700">{opt.option}</div>
-//                     <div className="text-sm font-bold text-green-800">{opt.votes ?? 0} votes</div>
-//                   </div>
-//                 ))}
-//               </div>
-//             </div>
-//             <div className="flex justify-end">
-//               <button onClick={() => { setShowResultsModal(false); setSelectedPollResults(null); }} className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Close</button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// };
-
-// export default OfficialDashboard;'
-
-
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API from '../api'; // Corrected import path
+
+// --- CHART.JS IMPORTS (Cleaned up) ---
+import {
+    ArcElement,
+    CategoryScale,
+    Chart as ChartJS,
+    Legend,
+    LinearScale,
+    Title,
+    Tooltip,
+} from 'chart.js';
+import { Doughnut } from 'react-chartjs-2';
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    ArcElement,
+    Title,
+    Tooltip,
+    Legend
+);
 
 const OfficialDashboard = () => {
-  // --- STATE MANAGEMENT ---
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [notifications, setNotifications] = useState([]);
-  const [petitions, setPetitions] = useState([]);
-  const [polls, setPolls] = useState([]);
-  const [stats, setStats] = useState({
-    petitions: 0,
-    polls: 0,
-    responseRate: '0%',
-    satisfaction: 0,
-  });
-  const [engagement, setEngagement] = useState({
-    totalInteractions: 0,
-    satisfactionRate: '0%',
-    avgResponseTime: 0,
-  });
-  const [userInfo, setUserInfo] = useState(null);
-  const [showResponseModal, setShowResponseModal] = useState(false);
-  const [selectedPetition, setSelectedPetition] = useState(null);
-  const [responseForm, setResponseForm] = useState({
-    message: '',
-    responseStatus: 'under-consideration',
-    estimatedCompletion: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    // --- STATE MANAGEMENT ---
+    const [activeTab, setActiveTab] = useState('dashboard');
+    const [petitions, setPetitions] = useState([]);
+    const [polls, setPolls] = useState([]);
+    const [stats, setStats] = useState({ petitions: 0, polls: 0, responseRate: '0%', satisfaction: 0 });
+    const [engagement, setEngagement] = useState({ totalInteractions: 0, satisfactionRate: '0%', avgResponseTime: 0 });
+    const [userInfo, setUserInfo] = useState(null);
+    const [showResponseModal, setShowResponseModal] = useState(false);
+    const [selectedPetition, setSelectedPetition] = useState(null);
+    const [responseForm, setResponseForm] = useState({ message: '', responseStatus: 'under-consideration' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showSignOutModal, setShowSignOutModal] = useState(false);
+    const [showPollModal, setShowPollModal] = useState(false);
+    const [isPollSubmitting, setIsPollSubmitting] = useState(false);
+    const [editingPoll, setEditingPoll] = useState(null);
+    const [pollQuestion, setPollQuestion] = useState('');
+    const [pollDescription, setPollDescription] = useState('');
+    const [pollOptions, setPollOptions] = useState(['', '']);
+    const [pollLocation, setPollLocation] = useState('');
+    const [closesOn, setClosesOn] = useState('');
+    const [showResultsModal, setShowResultsModal] = useState(false);
+    const [selectedPollResults, setSelectedPollResults] = useState(null);
+    const [reportsData, setReportsData] = useState(null);
+    const [isReportLoading, setIsReportLoading] = useState(true);
 
-  // Poll states
-  const [showPollModal, setShowPollModal] = useState(false);
-  const [pollForm, setPollForm] = useState({ question: '', options: ['', ''] });
-  const [isPollSubmitting, setIsPollSubmitting] = useState(false);
-  const [showResultsModal, setShowResultsModal] = useState(false);
-  const [selectedPollResults, setSelectedPollResults] = useState(null);
-  const [showSignOutModal, setShowSignOutModal] = useState(false);
+    const navigate = useNavigate();
 
-  const navigate = useNavigate();
-
-  // Helper function to get the token
-  const getToken = () => localStorage.getItem('token');
-
-  // --- AUTHENTICATION & DATA LOADING ---
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        if (user.role === 'official') {
-          setUserInfo(user);
+    // --- AUTHENTICATION & DATA LOADING ---
+    useEffect(() => {
+        const storedUser = API.getStoredUser();
+        if (storedUser && storedUser.role === 'official') {
+            setUserInfo(storedUser);
         } else {
-          // Redirect non-official users
-          navigate('/dashboard'); 
+            navigate('/login');
         }
-      } catch (e) {
-        console.error("Failed to parse user info from localStorage", e);
-        navigate('/login');
-      }
-    } else {
-      // Redirect if no user object exists
-      navigate('/login');
-    }
-  }, [navigate]);
+    }, [navigate]);
 
-  useEffect(() => {
-    if (userInfo) {
-      fetchNotifications();
-      fetchPetitions();
-      fetchPolls();
-      fetchStats();
-      fetchEngagement();
-    }
-  }, [userInfo]);
+    useEffect(() => {
+        if (userInfo) {
+            fetchPetitions();
+            fetchPolls();
+            fetchStats();
+            fetchEngagement();
+            fetchReportsData();
+        }
+    }, [userInfo]);
 
-  // --- API FETCHING FUNCTIONS ---
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/dashboard/notifications', {
-        headers: { 'Authorization': `Bearer ${getToken()}` }
-      });
-      const data = await response.json();
-      setNotifications(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error('Failed to fetch notifications:', err);
-      setNotifications([]);
-    }
-  };
-
-  const fetchPetitions = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/petitions', {
-        headers: { 'Authorization': `Bearer ${getToken()}` }
-      });
-      const data = await response.json();
-      setPetitions(data.petitions && Array.isArray(data.petitions) ? data.petitions : []);
-    } catch (err) {
-      console.error('Failed to fetch petitions:', err);
-      setPetitions([]);
-    }
-  };
-
-  const fetchPolls = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/polls', {
-        headers: { 'Authorization': `Bearer ${getToken()}` }
-      });
-      const data = await response.json();
-      setPolls(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error('Failed to fetch polls:', err);
-      setPolls([]);
-    }
-  };
-
-  const fetchStats = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/dashboard/summary', {
-        headers: { 'Authorization': `Bearer ${getToken()}` }
-      });
-      const data = await response.json();
-      setStats({
-        petitions: data.petitions || 0,
-        polls: data.polls || 0,
-        responseRate: data.responseRate || '0%',
-        satisfaction: data.satisfaction || 0,
-      });
-    } catch (err) {
-      console.error('Failed to fetch stats:', err);
-    }
-  };
-
-  const fetchEngagement = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/dashboard/engagement', {
-        headers: { 'Authorization': `Bearer ${getToken()}` }
-      });
-      const data = await response.json();
-      setEngagement(data);
-    } catch (err) {
-      console.error('Failed to fetch engagement:', err);
-    }
-  };
-
-  // --- HANDLERS ---
-
-  const handleNavClick = (tab) => setActiveTab(tab);
-
-  const handleSignOutClick = () => {
-    setShowSignOutModal(true);
-  };
-
-  const confirmSignOut = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('token');
-    navigate('/');
-  };
-
-  const cancelSignOut = () => {
-    setShowSignOutModal(false);
-  };
-
-  const respondToPetition = (petition) => {
-    setSelectedPetition(petition);
-    setShowResponseModal(true);
-    setResponseForm({
-      message: '',
-      responseStatus: 'under-consideration',
-      estimatedCompletion: ''
-    });
-  };
-
-  const closeResponseModal = () => {
-    setShowResponseModal(false);
-    setSelectedPetition(null);
-  };
-  
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setResponseForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  const submitResponse = async () => {
-    if (!selectedPetition || !responseForm.message.trim()) {
-      alert('Please fill in the response message');
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const response = await fetch(`http://localhost:5000/api/petitions/${selectedPetition._id}/respond`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-        body: JSON.stringify({
-          ...responseForm,
-          respondedBy: userInfo?.fullName || 'Public Official'
-        })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        alert('Response submitted successfully!');
-        closeResponseModal();
-        fetchPetitions();
-      } else {
-        alert('Failed to submit response: ' + (data.error || 'Unknown error'));
-      }
-    } catch (error) {
-      console.error('Error submitting response:', error);
-      alert('Failed to submit response. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
-  const handlePollOptionChange = (idx, value) => {
-    const updated = [...pollForm.options];
-    updated[idx] = value;
-    setPollForm({ ...pollForm, options: updated });
-  };
-  
-  const addPollOption = () => {
-    setPollForm({ ...pollForm, options: [...pollForm.options, ''] });
-  };
-
-  const submitPoll = async () => {
-    if (!pollForm.question.trim() || pollForm.options.some(opt => !opt.trim())) {
-      alert('Please enter a question and fill all options');
-      return;
-    }
-    setIsPollSubmitting(true);
-    try {
-      const payload = {
-        ...pollForm,
-        title: pollForm.question 
-      };
-
-      const res = await fetch('http://localhost:5000/api/polls', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert('Poll created successfully');
-        setShowPollModal(false);
-        setPollForm({ question: '', options: ['', ''] });
-        fetchPolls();
-      } else {
-        alert(data.error || 'Failed to create poll');
-      }
-    } catch (err) {
-      console.error('Error creating poll:', err);
-    } finally {
-      setIsPollSubmitting(false);
-    }
-  };
-  
-  const viewResults = async (pollId) => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/polls/${pollId}`, {
-        headers: { 'Authorization': `Bearer ${getToken()}` }
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setSelectedPollResults(data);
-        setShowResultsModal(true);
-      } else {
-        alert(data.error || 'Failed to fetch results');
-      }
-    } catch (err) {
-      console.error('Error fetching poll results:', err);
-    }
-  };
-
-  const closePoll = async (pollId) => {
-    if (!window.confirm('Are you sure you want to close this poll?')) return;
-    try {
-      const res = await fetch(`http://localhost:5000/api/polls/${pollId}`, {
-          method: 'DELETE',
-          headers: {'Authorization': `Bearer ${getToken()}`}
-        });
-      const data = await res.json();
-      if (res.ok) {
-        alert(data.message || 'Poll closed');
-        fetchPolls();
-      } else {
-        alert(data.error || 'Failed to close poll');
-      }
-    } catch (err) {
-      console.error('Error closing poll:', err);
-    }
-  };
-
-  // --- HELPERS & RENDER LOGIC ---
-  const getStatusConfig = (status) => {
-    const configs = {
-      'pending': { class: 'bg-yellow-100 text-yellow-700', text: 'Pending' },
-      'active': { class: 'bg-yellow-100 text-yellow-700', text: 'Pending' },
-      'under-review': { class: 'bg-blue-100 text-blue-700', text: 'Under Review' },
-      'responded': { class: 'bg-green-100 text-green-700', text: 'Responded' },
+    // --- API FETCHING FUNCTIONS ---
+    const fetchPetitions = async () => {
+        try {
+            const response = await API.getPetitions({ limit: 100 });
+            setPetitions(response.data.petitions || []);
+        } catch (err) {
+            console.error('Failed to fetch petitions:', err);
+            setPetitions([]);
+        }
     };
-    return configs[status] || configs['pending'];
-  };
+    const fetchPolls = async () => {
+        try {
+            const response = await API.getOfficialPolls();
+            setPolls(response.data || []);
+        } catch (err) {
+            console.error('Failed to fetch polls:', err);
+            setPolls([]);
+        }
+    };
+    const fetchStats = async () => {
+        try {
+            const response = await API.getDashboardSummary();
+            setStats(response.data);
+        } catch (err) {
+            console.error('Failed to fetch stats:', err);
+        }
+    };
+    const fetchEngagement = async () => {
+        try {
+            const response = await API.getDashboardEngagement();
+            setEngagement(response.data);
+        } catch (err) {
+            console.error('Failed to fetch engagement data:', err);
+        }
+    };
+    const fetchReportsData = async () => {
+        setIsReportLoading(true);
+        try {
+            const response = await API.getReportsData();
+            setReportsData(response.data);
+        } catch (err) {
+            console.error('Failed to fetch reports data:', err);
+            setReportsData(null);
+        } finally {
+            setIsReportLoading(false);
+        }
+    };
+    
+    // --- HANDLERS ---
+    const handleNavClick = (tab) => setActiveTab(tab);
+    const handleSignOutClick = () => setShowSignOutModal(true);
+    const confirmSignOut = () => {
+        API.clearAuth();
+        localStorage.removeItem('user');
+        navigate('/');
+    };
+    const cancelSignOut = () => setShowSignOutModal(false);
+    const respondToPetition = (petition) => {
+        setSelectedPetition(petition);
+        setShowResponseModal(true);
+        setResponseForm({ message: '', responseStatus: 'under-consideration' });
+    };
+    const closeResponseModal = () => {
+        setShowResponseModal(false);
+        setSelectedPetition(null);
+    };
+    const handleFormChange = (e) => setResponseForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const submitResponse = async () => {
+        if (!selectedPetition || !responseForm.message.trim()) return alert('Please fill in the response message');
+        setIsSubmitting(true);
+        try {
+            await API.respondToPetition(selectedPetition._id, {
+                ...responseForm,
+                respondedBy: userInfo?.fullName || 'Public Official'
+            });
+            alert('Response submitted successfully!');
+            closeResponseModal();
+            fetchPetitions();
+            fetchStats();
+        } catch (error) {
+            console.error('Error submitting response:', error);
+            alert('Failed to submit response. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+    const exportToCSV = () => {
+        if (!reportsData || !reportsData.reportData) return;
+        const headers = ['ID', 'Title', 'Status', 'Submitted Date', 'Signatures', 'Official Response'];
+        const rows = reportsData.reportData.map(item => [
+            item.id,
+            `"${item.title.replace(/"/g, '""')}"`,
+            item.status,
+            item.submittedDate,
+            item.signatures,
+            `"${(item.response || 'N/A').replace(/"/g, '""')}"`
+        ]);
+        const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'civic-engagement-report.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+    const addPollOption = () => setPollOptions([...pollOptions, '']);
+    const updatePollOption = (index, value) => {
+        const newOptions = [...pollOptions];
+        newOptions[index] = value;
+        setPollOptions(newOptions);
+    };
+    const removePollOption = (index) => {
+        if (pollOptions.length > 2) setPollOptions(pollOptions.filter((_, i) => i !== index));
+    };
+    const handleSubmitPoll = () => { alert("Poll submission logic needs to be fully implemented!"); };
+    const viewResults = () => setShowResultsModal(true);
+    const handleDeletePoll = () => alert("Delete poll logic here.");
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-green-400">
-                    <div className="text-gray-600 text-sm">Total Petitions</div>
-                    <div className="text-3xl font-bold text-green-800">{stats.petitions}</div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-blue-400">
-                    <div className="text-gray-600 text-sm">Active Polls</div>
-                    <div className="text-3xl font-bold text-green-800">{stats.polls}</div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-purple-400">
-                    <div className="text-gray-600 text-sm">Response Rate</div>
-                    <div className="text-3xl font-bold text-green-800">{stats.responseRate}</div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-orange-400">
-                    <div className="text-gray-600 text-sm">Community Satisfaction</div>
-                    <div className="text-3xl font-bold text-green-800">{stats.satisfaction}%</div>
-                </div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <div className="bg-white rounded-2xl p-6 shadow-lg">
-                    <h2 className="text-xl font-bold text-green-800 mb-4">Recent Petitions</h2>
-                    {petitions.slice(0, 5).map(p => (
-                        <div key={p._id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg mb-2">
-                            <div>
-                                <p className="font-medium text-green-800">{p.title}</p>
-                                <p className="text-xs text-gray-500">{p.signatures?.length || 0} signatures</p>
-                            </div>
-                            <span className={`px-2 py-1 rounded-full text-xs ${getStatusConfig(p.status).class}`}>
-                                {getStatusConfig(p.status).text}
-                            </span>
+    // --- RENDER LOGIC ---
+    const getStatusConfig = (status) => {
+        const configs = {
+            'pending': { class: 'bg-yellow-100 text-yellow-700', text: 'Pending Review' },
+            'under-consideration': { class: 'bg-blue-100 text-blue-700', text: 'Under Consideration' },
+            'approved': { class: 'bg-green-100 text-green-700', text: 'Approved' },
+            'rejected': { class: 'bg-red-100 text-red-700', text: 'Rejected' },
+            'active': { class: 'bg-green-100 text-green-700', text: 'Active' },
+            'responded': { class: 'bg-green-100 text-green-700', text: 'Responded' },
+        };
+        return configs[status] || configs['pending'];
+    };
+
+    // --- CHART DATA AND OPTIONS ---
+    const getStatusSummaryChartData = () => {
+        if (!reportsData) {
+            return { labels: [], datasets: [] };
+        }
+        return {
+            labels: ['Responded', 'Awaiting Response'],
+            datasets: [
+                {
+                    label: 'Petition Status',
+                    data: [reportsData.respondedCount, reportsData.pendingCount],
+                    backgroundColor: [ 'rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)', ],
+                    borderColor: [ 'rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', ],
+                    borderWidth: 1,
+                },
+            ],
+        };
+    };
+
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'dashboard':
+                return ( /* Dashboard JSX */ <> <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"> <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-green-400"> <div className="text-gray-600 text-sm">Total Petitions</div> <div className="text-3xl font-bold text-green-800">{stats.petitions}</div> </div> <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-blue-400"> <div className="text-gray-600 text-sm">Your Active Polls</div> <div className="text-3xl font-bold text-green-800">{stats.polls}</div> </div> <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-purple-400"> <div className="text-gray-600 text-sm">Response Rate</div> <div className="text-3xl font-bold text-green-800">{stats.responseRate}</div> </div> <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-orange-400"> <div className="text-gray-600 text-sm">Community Satisfaction</div> <div className="text-3xl font-bold text-green-800">{stats.satisfaction}%</div> </div> </div> <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"> <div className="bg-white rounded-2xl p-6 shadow-lg"> <h2 className="text-xl font-bold text-green-800 mb-4">Recent Petitions</h2> {petitions.slice(0, 5).map(p => ( <div key={p._id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg mb-2"> <div> <p className="font-medium text-green-800">{p.title}</p> <p className="text-xs text-gray-500">{p.signatures?.length || 0} signatures</p> </div> <span className={`px-2 py-1 rounded-full text-xs ${getStatusConfig(p.status).class}`}> {getStatusConfig(p.status).text} </span> </div> ))} </div> <div className="bg-white rounded-2xl p-6 shadow-lg"> <h2 className="text-xl font-bold text-green-800 mb-4">Community Engagement</h2> <div className="space-y-4"> <div className="flex justify-between items-center"><span className="text-gray-600">Total Interactions</span><span className="font-bold text-green-800">{engagement.totalInteractions}</span></div> <div className="flex justify-between items-center"><span className="text-gray-600">Satisfaction Rate</span><span className="font-bold text-green-800">{engagement.satisfactionRate}</span></div> <div className="flex justify-between items-center"><span className="text-gray-600">Avg Response Time</span><span className="font-bold text-green-800">{engagement.avgResponseTime} days</span></div> </div> </div> </div> </>);
+            case 'petitions':
+                return ( /* Petitions JSX */ <div className="bg-white rounded-2xl p-6 shadow-lg"> <div className="space-y-4"> <h2 className="text-2xl font-bold text-green-800 mb-4">Petitions in Your Locality</h2> {petitions.length > 0 ? petitions.map((p) => ( <div key={p._id} className="flex justify-between items-start p-4 border-b"> <div className="flex-1"> <div className="font-semibold text-green-800 mb-1">{p.title}</div> <div className="text-xs text-gray-600 mb-2">{p.signatures?.length || 0} signatures</div> <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${getStatusConfig(p.status).class}`}> {getStatusConfig(p.status).text} </span> </div> <button
+    onClick={() => respondToPetition(p)}
+    disabled={p.status === 'approved' || p.status === 'rejected'}
+    className="ml-4 px-4 py-2 rounded-md text-sm font-semibold bg-green-800 text-white hover:bg-green-700 disabled:bg-green-700 disabled:opacity-75 w-28 text-center"
+>
+    {p.status === 'approved' || p.status === 'rejected' ? 'Responded' : 'Respond'}
+</button> </div> )) : <div className="text-center py-8 text-gray-500">No petitions found in your locality.</div>} </div> </div>);
+            case 'polls':
+                return ( /* Polls JSX */ <div className="bg-white rounded-2xl p-8 shadow-lg"> <div className="flex justify-between items-center mb-8"> <h2 className="text-3xl font-extrabold text-green-900">Polls Management</h2> <button onClick={() => setShowPollModal(true)} className="bg-green-800 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold shadow">＋ Create New Poll</button> </div> <div className="space-y-6"> {polls.length > 0 ? polls.map((poll) => ( <div key={poll._id} className="bg-gray-50 p-6 rounded-xl border border-green-200"> <h3 className="text-xl font-bold text-green-900 mb-2">{poll.title}</h3> <div className="flex justify-between items-center"> <p className="text-sm text-gray-600">Created: {new Date(poll.createdAt).toLocaleDateString()}</p> <div className="flex gap-2"> <button onClick={() => viewResults(poll._id)} className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600">View Results</button> <button onClick={() => handleDeletePoll(poll._id)} className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600">Close Poll</button> </div> </div> </div> )) : <div className="text-center py-12 text-gray-500 text-lg">You have not created any polls yet.</div>} </div> </div>);
+            
+            case 'reports':
+                if (isReportLoading) return <div className="text-center p-10 bg-white rounded-xl shadow-lg">Loading Civic Engagement Report...</div>;
+                if (!reportsData) return <div className="text-center p-10 text-red-500 bg-white rounded-xl shadow-lg">Could not load report data.</div>;
+
+                const statusSummaryChartData = getStatusSummaryChartData();
+
+                return (
+                    <div className="bg-white rounded-2xl p-8 shadow-lg space-y-8">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-3xl font-extrabold text-green-900">Civic Engagement Report</h2>
+                            <button onClick={exportToCSV} className="bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-semibold shadow">Export as CSV</button>
                         </div>
-                    ))}
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-lg">
-                    <h2 className="text-xl font-bold text-green-800 mb-4">Community Engagement</h2>
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center"><span className="text-gray-600">Total Interactions</span><span className="font-bold text-green-800">{engagement.totalInteractions}</span></div>
-                        <div className="flex justify-between items-center"><span className="text-gray-600">Satisfaction Rate</span><span className="font-bold text-green-800">{engagement.satisfactionRate}</span></div>
-                        <div className="flex justify-between items-center"><span className="text-gray-600">Avg Response Time</span><span className="font-bold text-green-800">{engagement.avgResponseTime} days</span></div>
-                    </div>
-                </div>
-            </div>
-          </>
-        );
-      case 'petitions':
-        return (
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-green-800">All Petitions</h2>
-                </div>
-                <div className="space-y-4">
-                    {petitions.length > 0 ? petitions.map((p) => (
-                        <div key={p._id} className="flex justify-between items-start p-4 border-b border-gray-100 last:border-b-0">
-                            <div className="flex-1">
-                                <div className="font-semibold text-green-800 mb-1">{p.title}</div>
-                                <div className="text-xs text-gray-600 mb-2">
-                                    Submitted by {p.creator?.fullName || 'Anonymous'} • {p.signatures?.length || 0} signatures
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div className="bg-gray-50 p-6 rounded-xl border"><div className="text-gray-600 text-sm">Total Petitions</div><div className="text-3xl font-bold text-green-800">{reportsData.totalPetitions || 0}</div></div>
+                            <div className="bg-gray-50 p-6 rounded-xl border"><div className="text-gray-600 text-sm">Petitions Responded</div><div className="text-3xl font-bold text-green-800">{reportsData.respondedCount || 0}</div></div>
+                            <div className="bg-gray-50 p-6 rounded-xl border"><div className="text-gray-600 text-sm">Awaiting Response</div><div className="text-3xl font-bold text-orange-600">{reportsData.pendingCount || 0}</div></div>
+                            <div className="bg-gray-50 p-6 rounded-xl border"><div className="text-gray-600 text-sm">Avg. Response Time</div><div className="text-3xl font-bold text-blue-800">{reportsData.averageResponseTimeDays || 'N/A'} days</div></div>
+                        </div>
+
+                        <div>
+                            <h3 className="text-xl font-bold text-green-900 mb-4">Petitions by Status</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-gray-50 p-6 rounded-xl border">
+                                <div className="flex flex-wrap gap-6 text-center">
+                                    {reportsData.petitionsByStatus && Object.entries(reportsData.petitionsByStatus).map(([status, count]) => (
+                                        <div key={status} className="flex-1 min-w-[100px]">
+                                            <div className="text-3xl font-bold text-gray-800">{count}</div>
+                                            <div className="text-sm text-gray-600 capitalize">{status.replace('-', ' ')}</div>
+                                        </div>
+                                    ))}
                                 </div>
-                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${getStatusConfig(p.status).class}`}>
-                                    {getStatusConfig(p.status).text}
-                                </span>
+                                <div className="max-w-[250px] mx-auto">
+                                    <Doughnut 
+                                        data={statusSummaryChartData} 
+                                        options={{ plugins: { legend: { position: 'top' } } }}
+                                    />
+                                </div>
                             </div>
-                            <button
-                                onClick={() => respondToPetition(p)}
-                                disabled={p.status === 'responded'}
-                                className="ml-4 px-4 py-2 rounded-md text-sm font-semibold transition-all duration-300 bg-green-800 text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                            >
-                                {p.status === 'responded' ? 'Viewed' : 'Respond'}
-                            </button>
                         </div>
-                    )) : (
-                        <div className="text-center py-8 text-gray-500">No petitions found.</div>
-                    )}
-                </div>
-            </div>
-        );
-      case 'polls':
-        return (
-          <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-green-800">Polls Management</h2>
-              <button onClick={() => setShowPollModal(true)} className="bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                Create New Poll
-              </button>
-            </div>
-            <div className="space-y-4">
-              {polls.length > 0 ? polls.map((poll) => (
-                <div key={poll._id} className="p-4 border border-gray-200 rounded-lg">
-                  <div className="font-semibold text-green-800 mb-2">{poll.question}</div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Created: {new Date(poll.createdAt).toLocaleDateString()}</span>
-                    <div className="flex gap-2">
-                      <button onClick={() => viewResults(poll._id)} className="px-3 py-1 bg-blue-500 text-white rounded text-sm">View Results</button>
-                      <button onClick={() => closePoll(poll._id)} className="px-3 py-1 bg-red-500 text-white rounded text-sm">Close Poll</button>
+
+                        {/* The Engagement Trends section has been removed as requested */}
+
                     </div>
-                  </div>
-                </div>
-              )) : (
-                <div className="text-center py-8 text-gray-500">No polls have been created yet.</div>
-              )}
-            </div>
-          </div>
-        );
-      default:
-        return <div className="text-center p-10 bg-white rounded-lg shadow-md">Content for {activeTab} is coming soon.</div>;
+                );
+            default:
+                return <div className="text-center p-10">Select a tab to view content.</div>;
+        }
+    };
+
+    if (!userInfo) {
+        return <div className="min-h-screen flex items-center justify-center font-semibold text-lg text-gray-600">Loading Dashboard...</div>;
     }
-  };
+    
+    const firstName = userInfo?.fullName ? userInfo.fullName.split(' ')[0] : 'Official';
+    const navigationItems = [
+        { id: 'dashboard', icon: '🏠', label: 'Dashboard', badge: null },
+        { id: 'petitions', icon: '📝', label: 'Petitions', badge: petitions.filter(p => p.status === 'pending').length },
+        { id: 'polls', icon: '📊', label: 'Polls', badge: polls.length },
+        { id: 'reports', icon: '📈', label: 'Reports', badge: null },
+        { id: 'settings', icon: '⚙️', label: 'Settings', badge: null }
+    ];
 
-  if (!userInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-green-50">
-        <div className="text-xl font-bold text-green-800">Loading Official Dashboard...</div>
-      </div>
+        <>
+            <div className="min-h-screen bg-gradient-to-br from-green-100 to-green-50 flex">
+                <div className="w-80 bg-gradient-to-b from-green-300 to-green-400 p-6 shadow-xl flex flex-col sticky top-0 h-screen overflow-y-auto">
+                    <div className="flex items-center mb-8 text-green-800"><div className="text-3xl mr-3">🏛️</div><div className="text-2xl font-bold">CIVIX</div></div>
+                    <div className="bg-white bg-opacity-30 rounded-xl p-5 mb-8"><div className="bg-green-800 text-white px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block">VERIFIED OFFICIAL</div><div className="text-lg font-bold text-green-800 mb-1">{userInfo.fullName}</div><div className="text-green-700 text-sm mb-2">{userInfo.email}</div></div>
+                    <nav className="flex-1">
+                        {navigationItems.map((item) => (
+                            <div key={item.id} className={`flex items-center p-4 m-2 rounded-lg cursor-pointer transition-all duration-300 text-green-800 font-medium hover:bg-white hover:bg-opacity-40 ${activeTab === item.id ? 'bg-white bg-opacity-50' : ''}`} onClick={() => handleNavClick(item.id)}>
+                                <span className="mr-3 text-lg">{item.icon}</span>
+                                <span className="flex-1">{item.label}</span>
+                                {item.badge > 0 && <span className="bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">{item.badge}</span>}
+                            </div>
+                        ))}
+                    </nav>
+                    <div className="mt-8 pt-5 sticky bottom-0 border-t border-white border-opacity-30"><div className="flex items-center p-2 m-1 rounded-lg cursor-pointer text-black-400 font-medium hover:bg-white hover:bg-opacity-40" onClick={handleSignOutClick}><span className="mr-3 text-lg">🚪</span> Sign Out</div></div>
+                </div>
+
+                <div className="flex-1 p-8 overflow-y-auto">
+                    <h1 className="text-3xl font-bold mb-6 text-green-800">
+                        {activeTab === 'dashboard' ? `Welcome back, ${firstName}!` : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                    </h1>
+                    {renderTabContent()}
+                </div>
+            </div>
+
+            {/* --- Modals --- */}
+            {showSignOutModal && ( <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"> <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4"> <div className="text-center"> <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4"><span className="text-2xl">🚪</span></div> <h3 className="text-lg font-bold text-gray-900 mb-2">Sign Out</h3> <p className="text-sm text-gray-500 mb-6">Are you sure you want to sign out?</p> </div> <div className="flex gap-3"> <button onClick={cancelSignOut} className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200">Cancel</button> <button onClick={confirmSignOut} className="flex-1 bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700">Sign Out</button> </div> </div> </div> )}
+            {showResponseModal && selectedPetition && ( <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"> <div className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"> <div className="flex justify-between items-center mb-4"> <h3 className="text-xl font-bold text-green-800">Respond to Petition</h3> <button onClick={closeResponseModal} className="text-gray-500 hover:text-gray-700 text-2xl">×</button> </div> <div className="bg-gray-50 rounded-lg p-4 mb-6"> <h4 className="font-semibold text-green-800 mb-2">{selectedPetition.title}</h4> <p className="text-gray-600 text-sm mb-2">Submitted by: {selectedPetition.creator?.fullName}</p> <p className="text-gray-700">{selectedPetition.description}</p> </div> <div> <div className="mb-4"> <label className="block text-sm font-medium text-gray-700 mb-2">Response Status</label> <select name="responseStatus" value={responseForm.responseStatus} onChange={handleFormChange} className="w-full p-3 border border-gray-300 rounded-lg"> <option value="under-consideration">Under Consideration</option> <option value="approved">Approved</option> <option value="rejected">Rejected</option> </select> </div> <div className="mb-4"> <label className="block text-sm font-medium text-gray-700 mb-2">Response Message *</label> <textarea name="message" value={responseForm.message} onChange={handleFormChange} rows={5} placeholder="Provide a detailed response..." className="w-full p-3 border border-gray-300 rounded-lg" /> </div> <div className="flex gap-3"> <button type="button" onClick={submitResponse} disabled={isSubmitting} className="flex-1 bg-green-800 text-white py-3 px-4 rounded-lg hover:bg-green-700 disabled:bg-green-400"> {isSubmitting ? 'Submitting...' : 'Submit Response'} </button> <button type="button" onClick={closeResponseModal} className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600">Cancel</button> </div> </div> </div> </div> )}
+            {showPollModal && ( <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"> <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"> <div className="flex justify-between items-center p-6 border-b"> <h2 className="text-xl font-semibold text-gray-800">Create a New Poll</h2> <button onClick={() => setShowPollModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button> </div> <div className="p-6 space-y-4"> <div> <label className="block text-sm font-medium text-gray-700 mb-1">Poll Question</label> <input type="text" value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)} placeholder="What do you want to ask?" className="w-full p-2 border rounded-md"/> </div> <div> <label className="block text-sm font-medium text-gray-700 mb-1">Description</label> <textarea value={pollDescription} onChange={(e) => setPollDescription(e.target.value)} placeholder="Provide more context..." rows={3} className="w-full p-2 border rounded-md"/> </div> <div> <label className="block text-sm font-medium text-gray-700 mb-1">Location</label> <input type="text" value={pollLocation} onChange={(e) => setPollLocation(e.target.value)} placeholder="e.g., San Diego, CA" className="w-full p-2 border rounded-md"/> </div> <div> <label className="block text-sm font-medium text-gray-700 mb-1">Poll Options</label> {pollOptions.map((option, index) => ( <div key={index} className="flex gap-2 mb-2"> <input type="text" value={option} onChange={(e) => updatePollOption(index, e.target.value)} placeholder={`Option ${index + 1}`} className="flex-1 p-2 border rounded-md"/> {pollOptions.length > 2 && <button onClick={() => removePollOption(index)} className="p-2 text-red-500 font-bold">&times;</button>} </div> ))} {pollOptions.length < 10 && <button onClick={addPollOption} className="text-sm text-green-600 font-semibold">+ Add Option</button>} </div> <div> <label className="block text-sm font-medium text-gray-700 mb-1">Closes On</label> <input type="date" value={closesOn} onChange={(e) => setClosesOn(e.target.value)} className="w-full p-2 border rounded-md"/> </div> <div className="flex gap-3 justify-end pt-4"> <button onClick={() => setShowPollModal(false)} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button> <button onClick={handleSubmitPoll} disabled={isPollSubmitting} className="px-6 py-2 bg-green-800 text-white rounded-md disabled:bg-green-400 hover:bg-green-700"> {isPollSubmitting ? 'Saving...' : 'Create Poll'} </button> </div> </div> </div> </div> )}
+            {showResultsModal && selectedPollResults && ( <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"> <div className="bg-white rounded-2xl p-6 max-w-lg w-full"> <div className="flex justify-between items-center mb-4"> <h3 className="text-xl font-bold text-green-800">Poll Results</h3> <button onClick={() => setShowResultsModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl">&times;</button> </div> <div className="mb-4"> <div className="font-semibold text-gray-900 text-lg mb-2">{selectedPollResults.title}</div> <div className="text-sm text-gray-500 mb-4"> Created: {new Date(selectedPollResults.createdAt).toLocaleDateString()} </div> <div className="space-y-3"> {(() => { const mockTotalVotes = 50; const mockOptions = [ { text: "Option A", votes: 20 }, { text: "Option B", votes: 30 }, ]; return Array.isArray(mockOptions) && mockOptions.map((opt, i) => { const percent = mockTotalVotes > 0 ? Math.round(((opt.votes || 0) / mockTotalVotes) * 100) : 0; return ( <div key={i}> <div className="flex justify-between items-center mb-1"> <span className="text-sm font-medium text-gray-700">{opt.text}</span> <span className="text-sm font-bold text-green-800"> {opt.votes} votes ({percent}%) </span> </div> <div className="w-full bg-gray-200 rounded-full h-4"> <div className="bg-green-500 h-4 rounded-full text-xs text-white flex items-center justify-center transition-all duration-500" style={{ width: `${percent}%` }} > {percent > 10 && `${percent}%`} </div> </div> </div> ); }); })()} </div> </div> <div className="flex justify-end mt-6"> <button onClick={() => setShowResultsModal(false)} className="bg-gray-600 text-white py-2 px-6 rounded-lg hover:bg-gray-700"> Close </button> </div> </div> </div> )}
+        </>
     );
-  }
-
-  const firstName = userInfo?.fullName ? userInfo.fullName.split(' ')[0] : 'Official';
-  const navigationItems = [
-    { id: 'dashboard', icon: '🏠', label: 'Dashboard', badge: null },
-    { id: 'petitions', icon: '📝', label: 'Petitions', badge: petitions.filter(p => p.status === 'pending' || p.status === 'active').length },
-    { id: 'polls', icon: '📊', label: 'Polls', badge: polls.length },
-    { id: 'settings', icon: '⚙️', label: 'Settings', badge: null }
-  ];
-
-  return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-green-100 to-green-50 flex">
-        <div className="w-80 bg-gradient-to-b from-green-300 to-green-400 p-6 shadow-xl flex flex-col sticky top-0 h-screen overflow-y-auto">
-          <div className="flex items-center mb-8 text-green-800">
-            <div className="text-3xl mr-3">🏛️</div>
-            <div className="text-2xl font-bold">CIVIX</div>
-          </div>
-          <div className="bg-white bg-opacity-30 rounded-xl p-5 mb-8 backdrop-blur-sm">
-            <div className="bg-green-800 text-white px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block">VERIFIED OFFICIAL</div>
-            <div className="text-lg font-bold text-green-800 mb-1">{userInfo?.fullName || 'Official User'}</div>
-            <div className="text-green-700 text-sm mb-2">{userInfo?.email || 'No email'}</div>
-          </div>
-
-          <nav className="flex-1">
-            {navigationItems.map((item) => (
-              <div
-                key={item.id}
-                className={`flex items-center p-4 m-2 rounded-lg cursor-pointer transition-all duration-300 text-green-800 font-medium hover:bg-white hover:bg-opacity-40 hover:translate-x-1 ${activeTab === item.id ? 'bg-white bg-opacity-50 shadow-md' : ''}`}
-                onClick={() => handleNavClick(item.id)}
-              >
-                <span className="mr-3 text-lg">{item.icon}</span>
-                <span className="flex-1">{item.label}</span>
-                {item.badge > 0 && (
-                  <span className="bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center ml-2">{item.badge}</span>
-                )}
-              </div>
-            ))}
-          </nav>
-
-          <div className="mt-8 pt-5 border-t border-white border-opacity-30">
-            <div className="flex items-center p-4 m-2 rounded-lg cursor-pointer text-green-800 font-medium hover:bg-white hover:bg-opacity-40" onClick={handleSignOutClick}>
-              <span className="mr-3 text-lg">🚪</span> Sign Out
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 p-8 overflow-y-auto">
-          <h1 className="text-3xl font-bold mb-6 text-green-800">
-            {activeTab === 'dashboard' ? `Welcome back, ${firstName}!` : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-          </h1>
-          {renderTabContent()}
-        </div>
-      </div>
-
-      {/* --- SIGN OUT CONFIRMATION MODAL --- */}
-      {showSignOutModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <span className="text-2xl">🚪</span>
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Sign Out</h3>
-              <p className="text-sm text-gray-500 mb-6">
-                Are you sure you want to sign out? You will need to log in again to access your dashboard.
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={cancelSignOut}
-                className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmSignOut}
-                className="flex-1 bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium"
-              >
-                Sign Out
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* --- EXISTING MODALS --- */}
-      {showResponseModal && selectedPetition && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-green-800">Respond to Petition</h3>
-              <button onClick={closeResponseModal} className="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h4 className="font-semibold text-green-800 mb-2">{selectedPetition.title}</h4>
-              <p className="text-gray-600 text-sm mb-2">Submitted by: {selectedPetition.creator?.fullName}</p>
-              <p className="text-gray-700">{selectedPetition.description}</p>
-            </div>
-            <div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Response Status</label>
-                <select name="responseStatus" value={responseForm.responseStatus} onChange={handleFormChange} className="w-full p-3 border border-gray-300 rounded-lg">
-                  <option value="under-consideration">Under Consideration</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Response Message *</label>
-                <textarea name="message" value={responseForm.message} onChange={handleFormChange} rows={5} placeholder="Provide a detailed response..." className="w-full p-3 border border-gray-300 rounded-lg" />
-              </div>
-              <div className="flex gap-3">
-                <button type="button" onClick={submitResponse} disabled={isSubmitting} className="flex-1 bg-green-800 text-white py-3 px-4 rounded-lg hover:bg-green-700 disabled:bg-green-400">
-                  {isSubmitting ? 'Submitting...' : 'Submit Response'}
-                </button>
-                <button type="button" onClick={closeResponseModal} className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showPollModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-lg w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-green-800">Create New Poll</h3>
-              <button onClick={() => setShowPollModal(false)} className="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-            </div>
-            <div className="space-y-3">
-              <input type="text" placeholder="Poll question" value={pollForm.question} onChange={(e) => setPollForm({ ...pollForm, question: e.target.value })} className="w-full p-3 border border-gray-300 rounded-lg" />
-              {pollForm.options.map((opt, idx) => (
-                <input key={idx} type="text" placeholder={`Option ${idx + 1}`} value={opt} onChange={(e) => handlePollOptionChange(idx, e.target.value)} className="w-full p-2 border border-gray-300 rounded-lg" />
-              ))}
-              <button type="button" onClick={addPollOption} className="text-green-700 text-sm">+ Add Option</button>
-              <div className="flex gap-3 mt-4">
-                <button onClick={submitPoll} disabled={isPollSubmitting} className="flex-1 bg-green-800 text-white py-3 px-4 rounded-lg hover:bg-green-700 disabled:bg-green-400">
-                  {isPollSubmitting ? 'Creating...' : 'Create Poll'}
-                </button>
-                <button onClick={() => setShowPollModal(false)} className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showResultsModal && selectedPollResults && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-lg w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-green-800">Poll Results</h3>
-              <button onClick={() => { setShowResultsModal(false); setSelectedPollResults(null); }} className="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-            </div>
-            <div className="mb-4">
-              <div className="font-semibold text-green-800 mb-2">{selectedPollResults.question}</div>
-              <div className="text-sm text-gray-500 mb-3">Created: {new Date(selectedPollResults.createdAt).toLocaleDateString()}</div>
-              <div className="space-y-2">
-                {Array.isArray(selectedPollResults.options) && selectedPollResults.options.map((opt, i) => (
-                  <div key={i} className="flex justify-between items-center">
-                    <div className="text-sm text-gray-700">{opt.option}</div>
-                    <div className="text-sm font-bold text-green-800">{opt.votes ?? 0} votes</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <button onClick={() => { setShowResultsModal(false); setSelectedPollResults(null); }} className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
 };
 
 export default OfficialDashboard;
