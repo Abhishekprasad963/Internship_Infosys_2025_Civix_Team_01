@@ -177,62 +177,177 @@
 
 
 
+// import { ArrowLeft, Mail, Search, Users } from 'lucide-react';
+// import { useEffect, useState } from 'react';
+// import API from '../api';
+
+// const Officials = () => {
+//   const [stats, setStats] = useState({ localOfficials: 0, messagesSent: 0, responses: 0 });
+//   const [officials, setOfficials] = useState([]);
+//   const [filter, setFilter] = useState('');
+//   const [view, setView] = useState('initial');
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [error, setError] = useState('');
+
+//   useEffect(() => {
+//     const fetchStats = async () => {
+//       try {
+//         const response = await API.getOfficialStats();
+//         setStats({
+//           localOfficials: response.data.totalOfficials,
+//           messagesSent: response.data.messagesSent,
+//           responses: response.data.responsesReceived,
+//         });
+//       } catch (error) { console.error("Failed to fetch official stats:", error); }
+//     };
+//     fetchStats();
+//   }, []);
+
+//   const handleFindOfficials = async () => {
+//     setView('list');
+//     setIsLoading(true);
+//     setError('');
+//     try {
+//       const response = await API.getOfficials();
+//       setOfficials(response.data.officials || []);
+//     } catch (error) {
+//       setError('Could not load officials. Please try again.');
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const filteredOfficials = officials.filter(o => o.fullName.toLowerCase().includes(filter.toLowerCase()));
+
+//   return (
+//     <div className="flex-1 p-6 bg-gray-50 min-h-screen">
+//       <div className="mb-6">
+//         <h1 className="text-2xl font-bold text-gray-800 mb-2">Officials</h1>
+//         <p className="text-gray-600">Connect with your elected representatives.</p>
+//       </div>
+      
+//       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+//         <div className="bg-white p-6 rounded-lg shadow-sm border"><h3 className="text-lg font-semibold text-gray-700 mb-2">Local Officials</h3><div className="text-2xl font-bold text-blue-600">{stats.localOfficials}</div></div>
+//         <div className="bg-white p-6 rounded-lg shadow-sm border"><h3 className="text-lg font-semibold text-gray-700 mb-2">Messages Sent</h3><div className="text-2xl font-bold text-green-600">{stats.messagesSent}</div></div>
+//         <div className="bg-white p-6 rounded-lg shadow-sm border"><h3 className="text-lg font-semibold text-gray-700 mb-2">Responses</h3><div className="text-2xl font-bold text-purple-600">{stats.responses}</div></div>
+//       </div>
+
+//       <div className="bg-white p-8 rounded-lg shadow-sm border">
+//         {view === 'initial' && (
+//           <div className="text-center">
+//             <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+//             <h3 className="text-lg font-semibold text-gray-700 mb-2">Your Representatives</h3>
+//             <p className="text-gray-500 mb-6">Find and contact your local, state, and federal officials.</p>
+//             <button onClick={handleFindOfficials} className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Find My Officials</button>
+//           </div>
+//         )}
+
+//         {view === 'list' && (
+//           <div>
+//             <div className="flex justify-between items-center mb-6"><h2 className="text-2xl font-bold text-gray-800">Registered Officials</h2><button onClick={() => setView('initial')} className="flex items-center gap-2 text-sm text-purple-600 hover:text-purple-800 font-semibold"><ArrowLeft size={16} /> Back</button></div>
+//             <div className="mb-8 relative"><input type="text" value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search by name..." className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500" /><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" /></div>
+//             {isLoading ? (<p className="text-center py-10">Loading...</p>) : error ? (<p className="text-center text-red-500 py-10">{error}</p>) : (
+//               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//                 {filteredOfficials.length > 0 ? (
+//                   filteredOfficials.map(official => (
+//                     <div key={official._id} className="bg-white border rounded-lg p-6 text-center flex flex-col items-center hover:shadow-xl hover:scale-105 transition-transform">
+//                       <img src={`https://api.dicebear.com/8.x/initials/svg?seed=${official.fullName}`} alt={official.fullName} className="w-24 h-24 rounded-full mb-4 border-4 border-gray-100" />
+//                       <h4 className="text-lg font-bold text-gray-900">{official.fullName}</h4>
+//                       <p className="text-sm text-gray-500 mb-5">{official.email}</p>
+//                       <a href={`mailto:${official.email}`} className="mt-auto w-full bg-purple-100 text-purple-700 font-semibold px-4 py-2 rounded-lg hover:bg-purple-200 flex items-center justify-center gap-2"><Mail className="w-4 h-4" /> Contact</a>
+//                     </div>
+//                   ))
+//                 ) : (<div className="col-span-full text-center py-12"><p className="text-gray-500">No officials found.</p></div>)}
+//               </div>
+//             )}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Officials;
+
+
 import { ArrowLeft, Mail, Search, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import API from '../api';
+import API from '../api'; // Make sure this path is correct
 
 const Officials = () => {
+  // State for stats, list of officials, search filter, and UI view
   const [stats, setStats] = useState({ localOfficials: 0, messagesSent: 0, responses: 0 });
   const [officials, setOfficials] = useState([]);
   const [filter, setFilter] = useState('');
-  const [view, setView] = useState('initial');
+  const [view, setView] = useState('initial'); // 'initial' or 'list'
+
+  // State for loading and error handling
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Fetch general statistics when the component first loads
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await API.getOfficialStats();
+        // Ensure API.getOfficialStats exists and is exported from your api.js
+        const response = await API.getOfficialStats(); 
         setStats({
           localOfficials: response.data.totalOfficials,
           messagesSent: response.data.messagesSent,
           responses: response.data.responsesReceived,
         });
-      } catch (error) { console.error("Failed to fetch official stats:", error); }
+      } catch (error) {
+        console.error("Failed to fetch official stats:", error);
+      }
     };
     fetchStats();
   }, []);
 
+  // Handler to fetch the list of officials when the user clicks the button
   const handleFindOfficials = async () => {
     setView('list');
     setIsLoading(true);
     setError('');
     try {
       const response = await API.getOfficials();
+      
+      // DEBUGGING: Log the response to check its structure
+      console.log('API Response for officials:', response);
+      
+      // IMPORTANT: Adjust `response.data.officials` based on your actual API response structure
       setOfficials(response.data.officials || []);
+
     } catch (error) {
+      console.error('Failed to fetch officials:', error);
       setError('Could not load officials. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filteredOfficials = officials.filter(o => o.fullName.toLowerCase().includes(filter.toLowerCase()));
+  // Filter the officials list based on the search input
+  const filteredOfficials = officials.filter(o => 
+    o.fullName.toLowerCase().includes(filter.toLowerCase())
+  );
 
   return (
     <div className="flex-1 p-6 bg-gray-50 min-h-screen">
+      {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Officials</h1>
         <p className="text-gray-600">Connect with your elected representatives.</p>
       </div>
       
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border"><h3 className="text-lg font-semibold text-gray-700 mb-2">Local Officials</h3><div className="text-2xl font-bold text-blue-600">{stats.localOfficials}</div></div>
         <div className="bg-white p-6 rounded-lg shadow-sm border"><h3 className="text-lg font-semibold text-gray-700 mb-2">Messages Sent</h3><div className="text-2xl font-bold text-green-600">{stats.messagesSent}</div></div>
         <div className="bg-white p-6 rounded-lg shadow-sm border"><h3 className="text-lg font-semibold text-gray-700 mb-2">Responses</h3><div className="text-2xl font-bold text-purple-600">{stats.responses}</div></div>
       </div>
 
+      {/* Main Content Area */}
       <div className="bg-white p-8 rounded-lg shadow-sm border">
+        {/* Initial View */}
         {view === 'initial' && (
           <div className="text-center">
             <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -242,11 +357,33 @@ const Officials = () => {
           </div>
         )}
 
+        {/* List View */}
         {view === 'list' && (
           <div>
-            <div className="flex justify-between items-center mb-6"><h2 className="text-2xl font-bold text-gray-800">Registered Officials</h2><button onClick={() => setView('initial')} className="flex items-center gap-2 text-sm text-purple-600 hover:text-purple-800 font-semibold"><ArrowLeft size={16} /> Back</button></div>
-            <div className="mb-8 relative"><input type="text" value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search by name..." className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500" /><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" /></div>
-            {isLoading ? (<p className="text-center py-10">Loading...</p>) : error ? (<p className="text-center text-red-500 py-10">{error}</p>) : (
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Registered Officials</h2>
+              <button onClick={() => setView('initial')} className="flex items-center gap-2 text-sm text-purple-600 hover:text-purple-800 font-semibold">
+                <ArrowLeft size={16} /> Back
+              </button>
+            </div>
+
+            <div className="mb-8 relative">
+              <input 
+                type="text" 
+                value={filter} 
+                onChange={(e) => setFilter(e.target.value)} 
+                placeholder="Search by name..." 
+                className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500" 
+              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            </div>
+            
+            {/* Conditional Rendering for Loading, Error, and Content */}
+            {isLoading ? (
+              <p className="text-center py-10">Loading...</p>
+            ) : error ? (
+              <p className="text-center text-red-500 py-10">{error}</p>
+            ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredOfficials.length > 0 ? (
                   filteredOfficials.map(official => (
@@ -254,10 +391,16 @@ const Officials = () => {
                       <img src={`https://api.dicebear.com/8.x/initials/svg?seed=${official.fullName}`} alt={official.fullName} className="w-24 h-24 rounded-full mb-4 border-4 border-gray-100" />
                       <h4 className="text-lg font-bold text-gray-900">{official.fullName}</h4>
                       <p className="text-sm text-gray-500 mb-5">{official.email}</p>
-                      <a href={`mailto:${official.email}`} className="mt-auto w-full bg-purple-100 text-purple-700 font-semibold px-4 py-2 rounded-lg hover:bg-purple-200 flex items-center justify-center gap-2"><Mail className="w-4 h-4" /> Contact</a>
+                      <a href={`mailto:${official.email}`} className="mt-auto w-full bg-purple-100 text-purple-700 font-semibold px-4 py-2 rounded-lg hover:bg-purple-200 flex items-center justify-center gap-2">
+                        <Mail className="w-4 h-4" /> Contact
+                      </a>
                     </div>
                   ))
-                ) : (<div className="col-span-full text-center py-12"><p className="text-gray-500">No officials found.</p></div>)}
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-gray-500">No officials found.</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
