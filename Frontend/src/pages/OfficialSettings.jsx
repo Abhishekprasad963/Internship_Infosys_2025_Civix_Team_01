@@ -208,7 +208,7 @@ const OfficialSettings = () => {
     switch (activeSection) {
       case "profile":
         return (
-          <div className="bg-green-50 rounded-xl p-6 ">
+          <div className="bg-gradient-to-br from-green-100 to-green-50 rounded-xl p-6 ">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">
               Profile & Personal Information
             </h2>
@@ -273,7 +273,7 @@ const OfficialSettings = () => {
 
       case "security":
         return (
-          <div className="bg-green-50 rounded-xl p-6 ">
+          <div className="bg-gradient-to-br from-green-100 to-green-50 rounded-xl p-6 ">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">
               Security & Privacy
             </h2>
@@ -339,7 +339,7 @@ const OfficialSettings = () => {
       )}
 
       {/* Sidebar */}
-      <div className="w-80 bg-green-50 p-6 shadow-sm">
+      <div className="w-80 bg-gradient-to-br from-green-100 to-green-50 p-6 shadow-sm">
 
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Settings</h1>
         <div className="space-y-2">
@@ -371,7 +371,7 @@ const OfficialSettings = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 bg-green-50 shadow-sm">{renderContent()}</div>
+      <div className="flex-1 p-6 bg-gradient-to-br from-green-100 to-green-50 shadow-sm">{renderContent()}</div>
     </div>
   );
 };
