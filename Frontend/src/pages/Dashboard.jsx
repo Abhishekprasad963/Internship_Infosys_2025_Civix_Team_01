@@ -90,6 +90,16 @@ const Dashboard = () => {
 
     /* new buddy 3 */
 
+// ...existing code...
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+  if (!token || !user) {
+    navigate("/login", { replace: true });
+  }
+}, [navigate]);
+// ...existing code...
+  
   const getFilteredPetitions = () => {
     if (!allPetitions) return [];
     const filtered = selectedCategory === 'all'
@@ -103,10 +113,14 @@ const Dashboard = () => {
   
   const displayedPetitions = getFilteredPetitions();
    
-  const handleSignOut = () => {
+   const handleSignOut = () => {
     API.clearAuth();
-    navigate("/login");
-  };
+     localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('userId');
+  localStorage.removeItem('userRole');
+  navigate("/login", { replace: true }); // <-- replaces history entry
+};
 
   const getButtonClass = (category) => {
     return selectedCategory === category.id
