@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcryptjs"; 
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -14,8 +14,8 @@ const userSchema = new mongoose.Schema({
     lowercase: true, 
     trim: true 
   },
-  password: 
-  { type: String, 
+  password: { 
+    type: String, 
     required: [true, "Password is required"], 
     minlength: 6, 
     select: false 
@@ -36,6 +36,11 @@ const userSchema = new mongoose.Schema({
   otpExpiry: { 
     type: Date, 
     select: false 
+  },
+  isVerified: { 
+    type: Boolean, 
+    default: false,
+    select: false 
   }
 }, { 
   timestamps: true,
@@ -45,24 +50,39 @@ const userSchema = new mongoose.Schema({
       delete ret.__v;
       ret.id = ret._id;
       delete ret._id;
+      return ret;
     }
   }
 });
 
-// ✅ FIXED: Always convert role to lowercase
-userSchema.pre("save", function (next) {
-  if (this.role) {
-    this.role = this.role.toLowerCase();
+// ✅ COMBINED pre-save hook: lowercase role AND hash password
+userSchema.pre("save", async function (next) {
+  try {
+    // Always convert role to lowercase
+    if (this.role) {
+      this.role = this.role.toLowerCase();
+    }
+
+    // Hash password only if modified and not already hashed
+    if (this.isModified("password")) {
+      // Check if password is already hashed (bcrypt hashes start with $2a$ or $2b$)
+      if (!this.password.startsWith("$2")) {
+        console.log("🔒 Hashing password for:", this.email);
+        this.password = await bcrypt.hash(this.password, 10);
+      }
+    }
+
+    next();
+  } catch (error) {
+    console.error("❌ Error in User pre-save hook:", error);
+    next(error);
   }
-  next();
 });
 
-// This hook automatically hashes the password before saving
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
+// ✅ Method to compare passwords
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 const User = mongoose.model("User", userSchema);
 export default User;

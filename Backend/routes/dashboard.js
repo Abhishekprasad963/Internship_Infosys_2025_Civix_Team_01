@@ -21,24 +21,24 @@ const getCivicParticipationRate = async () => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    // 3. Find unique users who recently signed petitions using aggregation
+    // 3. Find unique users who recently signed petitions
     const usersFromPetitions = await Petition.aggregate([
-        { $unwind: "$signatures" },
-        { $match: { "signatures.signedAt": { $gte: thirtyDaysAgo } } },
-        { $group: { _id: "$signatures.user" } }
+      { $unwind: "$signatures" },
+      { $match: { "signatures.signedAt": { $gte: thirtyDaysAgo } } },
+      { $group: { _id: "$signatures.user" } }
     ]);
 
-    // 4. Find unique users who recently voted in polls using aggregation
+    // 4. Find unique users who recently voted in polls
     const usersFromPolls = await Poll.aggregate([
-        { $unwind: "$voters" },
-        { $match: { "voters.votedAt": { $gte: thirtyDaysAgo } } },
-        { $group: { _id: "$voters.userId" } }
+      { $unwind: "$voters" },
+      { $match: { "voters.votedAt": { $gte: thirtyDaysAgo } } },
+      { $group: { _id: "$voters.userId" } }
     ]);
 
     // 5. Combine and count unique participating users
     const participatingUserIds = new Set([
-        ...usersFromPetitions.map(item => item._id.toString()),
-        ...usersFromPolls.map(item => item._id.toString())
+      ...usersFromPetitions.map(item => item._id.toString()),
+      ...usersFromPolls.map(item => item._id.toString())
     ]);
     
     const uniqueParticipants = participatingUserIds.size;
@@ -83,42 +83,42 @@ router.get('/summary', async (req, res) => {
 
 // GET /api/dashboard/engagement
 router.get('/engagement', async (req, res) => {
-    try {
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-        const usersFromPetitions = await Petition.distinct("signatures.user", { "signatures.signedAt": { $gte: sevenDaysAgo } });
-        const usersFromPolls = await Poll.distinct("voters.userId", { "voters.votedAt": { $gte: sevenDaysAgo } });
+    const usersFromPetitions = await Petition.distinct("signatures.user", { "signatures.signedAt": { $gte: sevenDaysAgo } });
+    const usersFromPolls = await Poll.distinct("voters.userId", { "voters.votedAt": { $gte: sevenDaysAgo } });
 
-        const allUserIds = [...usersFromPetitions.map(id => id.toString()), ...usersFromPolls.map(id => id.toString())];
-        const uniqueActiveUsers = new Set(allUserIds);
-        const activeUserCount = uniqueActiveUsers.size;
+    const allUserIds = [...usersFromPetitions.map(id => id.toString()), ...usersFromPolls.map(id => id.toString())];
+    const uniqueActiveUsers = new Set(allUserIds);
+    const activeUserCount = uniqueActiveUsers.size;
 
-        const civicParticipationRate = await getCivicParticipationRate();
-        const avgResponseTime = 7; // Placeholder
+    const civicParticipationRate = await getCivicParticipationRate();
+    const avgResponseTime = 7; // Placeholder
 
-        res.json({
-            activeUsers: activeUserCount,
-            civicParticipationRate,
-            avgResponseTime,
-        });
-    } catch (err) {
-        console.error("Error fetching dashboard engagement data:", err);
-        res.status(500).json({ error: 'Server Error fetching engagement' });
-    }
+    res.json({
+      activeUsers: activeUserCount,
+      civicParticipationRate,
+      avgResponseTime,
+    });
+  } catch (err) {
+    console.error("Error fetching dashboard engagement data:", err);
+    res.status(500).json({ error: 'Server Error fetching engagement' });
+  }
 });
 
 // GET /api/dashboard/notifications
 router.get('/notifications', async (req, res) => {
-    try {
-        res.json([
-            { id: 1, message: 'A new petition "Improve Park Lighting" requires attention.' },
-            { id: 2, message: 'Poll "New Community Center Location" has ended.' }
-        ]);
-    } catch (err) {
-        console.error("Error fetching notifications:", err);
-        res.status(500).json({ error: 'Server Error fetching notifications' });
-    }
+  try {
+    res.json([
+      { id: 1, message: 'A new petition "Improve Park Lighting" requires attention.' },
+      { id: 2, message: 'Poll "New Community Center Location" has ended.' }
+    ]);
+  } catch (err) {
+    console.error("Error fetching notifications:", err);
+    res.status(500).json({ error: 'Server Error fetching notifications' });
+  }
 });
 
 // GET /api/dashboard/stats - Fetches stats for the logged-in citizen
