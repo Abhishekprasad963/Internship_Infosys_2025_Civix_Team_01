@@ -43,6 +43,29 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  // CSS to hide browser-native password reveal icons so only our custom icons show
+  const hideNativePasswordToggleStyles = `
+    /* Remove native reveal/clear icons in Edge/IE */
+    input[type=\"password\"]::-ms-reveal,
+    input[type=\"password\"]::-ms-clear {
+      display: none;
+    }
+
+    /* Remove native reveal icon in WebKit-based browsers (Chrome, Safari) */
+    input[type=\"password\"]::-webkit-textfield-decoration-button,
+    input[type=\"password\"]::-webkit-credentials-auto-fill-button {
+      display: none !important;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Remove default appearance which can show built-in decorations */
+    input[type=\"password\"] {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  `;
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -187,6 +210,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <style>{hideNativePasswordToggleStyles}</style>
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
