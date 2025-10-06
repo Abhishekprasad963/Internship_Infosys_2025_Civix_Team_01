@@ -20,6 +20,7 @@ interface Poll {
     fullName: string;
     role: string;
   };
+  createdAt?: string;
 }
 
 interface ToastModalProps {
@@ -95,6 +96,8 @@ const Polls: React.FC = () => {
         totalVotes: poll.options.reduce((sum: number, o: any) => sum + o.votes, 0),
         hasVoted: false,
         location: poll.targetLocation || '',
+        // derive createdAt from explicit field or from MongoDB ObjectId timestamp
+        createdAt: poll.createdAt || (poll._id ? new Date(parseInt(String(poll._id).substring(0, 8), 16) * 1000).toISOString() : undefined),
         isMyPoll: String(
           poll.createdBy && (typeof poll.createdBy === 'object'
             ? (poll.createdBy._id || poll.createdBy.id || poll.createdBy)
@@ -103,6 +106,8 @@ const Polls: React.FC = () => {
         createdBy: (poll.createdBy && typeof poll.createdBy === 'object') ? poll.createdBy : { _id: poll.createdBy },
         isOfficial: !!poll.isOfficial
       }));
+       // sort newest first by createdAt (fallback to 0)
+       polls.sort((a: any, b: any) => (new Date(b.createdAt || 0).getTime()) - (new Date(a.createdAt || 0).getTime()));
        /* p */
         console.log("currentUserId:", currentUserId);
       console.log("polls:", polls.map((p: any) => ({
@@ -159,6 +164,7 @@ const Polls: React.FC = () => {
     totalVotes: poll.options.reduce((sum: number, o: any) => sum + o.votes, 0),
     hasVoted: false,
     location: poll.targetLocation || 'San Diego, CA',
+    createdAt: poll.createdAt || (poll._id ? new Date(parseInt(String(poll._id).substring(0, 8), 16) * 1000).toISOString() : undefined),
     isMyPoll: String(
       poll.createdBy && (typeof poll.createdBy === 'object'
         ? (poll.createdBy._id || poll.createdBy.id || poll.createdBy)
@@ -167,6 +173,8 @@ const Polls: React.FC = () => {
     createdBy: (poll.createdBy && typeof poll.createdBy === 'object') ? poll.createdBy : { _id: poll.createdBy },
     isOfficial: !!poll.isOfficial
   }));
+  // newest first
+  polls.sort((a: any, b: any) => (new Date(b.createdAt || 0).getTime()) - (new Date(a.createdAt || 0).getTime()));
   if (currentUserId) {
     const votedRes = await API.client.get(`/polls/voted?userId=${currentUserId}`);
     const votedPollIds = votedRes.data;
