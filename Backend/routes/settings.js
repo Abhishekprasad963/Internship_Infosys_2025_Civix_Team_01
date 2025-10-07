@@ -161,28 +161,4 @@ router.put("/update-password", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Server error: " + err.message });
   }
 });
-
-router.delete("/remove-profile-pic", authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $unset: { profilePic: "" } }, // remove the field from DB
-      { new: true }
-    ).select("-password");
-
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.json({
-      message: "Profile picture removed successfully",
-      user: updatedUser,
-    });
-  } catch (err) {
-    console.error("❌ Error removing profile picture:", err);
-    res.status(500).json({ error: "Server error while removing profile picture" });
-  }
-});
 export default router;
