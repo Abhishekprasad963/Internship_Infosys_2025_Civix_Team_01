@@ -2,6 +2,8 @@ import { AlertCircle, AlertTriangle, Clock, Edit2, FileText, Filter, MapPin, Sea
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import API from '../api';
+// @ts-ignore - LoadingContext is a JS module
+import { useLoading } from '../components/LoadingContext';
 
 // --- Component: Success Popup ---
 const SuccessPopup = ({ message, onClose }) => (
@@ -258,6 +260,8 @@ const Petitions = () => {
 
   const currentView = searchParams.get('view');
 
+  const { showLoader, hideLoader } = useLoading();
+
   const getUserId = () => {
     const userString = localStorage.getItem('user');
     if (userString) {
@@ -293,6 +297,7 @@ const Petitions = () => {
     const userId = getUserId();
     const params = { limit: 1000, userId };
     try {
+      showLoader();
       setIsLoading(true);
       const response = await API.getPetitions(params);
       const userPetitions = response.data.petitions;
@@ -302,6 +307,7 @@ const Petitions = () => {
       setError('Failed to load petitions');
     } finally {
       setIsLoading(false);
+      hideLoader();
     }
   };
 
@@ -324,6 +330,7 @@ const Petitions = () => {
 
   const handleSubmit = async () => {
     try {
+      showLoader();
       setIsLoading(true);
       const response = await API.createPetition(formData);
       if (response.data && response.data.petition) {
@@ -340,11 +347,13 @@ const Petitions = () => {
       setError(err.response?.data?.error || 'Failed to create petition');
     } finally {
       setIsLoading(false);
+      hideLoader();
     }
   };
 
   const handleSignPetition = async (petitionId) => {
     try {
+      showLoader();
       const response = await API.signPetition(petitionId);
       if (response.data && response.data.signatureCount !== undefined) {
         await fetchPetitions();
@@ -354,6 +363,8 @@ const Petitions = () => {
       console.error('Error signing petition:', err);
       setError(err.response?.data?.error || 'Failed to sign petition');
       setTimeout(() => setError(''), 3000);
+    } finally {
+      hideLoader();
     }
   };
 
@@ -376,6 +387,7 @@ const Petitions = () => {
 
   const handleUpdate = async () => {
     try {
+      showLoader();
       setIsLoading(true);
       const response = await API.updatePetition(editingPetition._id, formData);
       if (response.data) {
@@ -392,6 +404,7 @@ const Petitions = () => {
       setError(err.response?.data?.error || 'Failed to update petition');
     } finally {
       setIsLoading(false);
+      hideLoader();
     }
   };
 
@@ -414,6 +427,7 @@ const Petitions = () => {
     if (!petitionToDelete) return;
 
     try {
+      showLoader();
       await API.deletePetition(petitionToDelete);
       await fetchPetitions();
       showSuccess('Petition deleted successfully! 🗑️');
@@ -422,6 +436,7 @@ const Petitions = () => {
       setError(err.response?.data?.error || 'Failed to delete petition');
       setTimeout(() => setError(''), 3000);
     } finally {
+      hideLoader();
       setShowConfirmPopup(false);
       setPetitionToDelete(null);
     }
