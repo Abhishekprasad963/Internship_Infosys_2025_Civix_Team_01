@@ -1,6 +1,7 @@
 // import React, { useEffect, useMemo, useState } from "react";
 // import { useNavigate } from 'react-router-dom';
 // import API from '../api';
+// import { useLoading } from '../components/LoadingContext';
 // import OfficialSettings from './OfficialSettings';
 
 // // --- CHART.JS IMPORTS ---
@@ -1123,6 +1124,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import API from '../api';
 import OfficialSettings from './OfficialSettings';
+import { useLoading } from '../components/LoadingContext';
 
 // --- CHART.JS IMPORTS ---
 import {
@@ -1259,6 +1261,8 @@ const OfficialDashboard = () => {
     const [showMobileNav, setShowMobileNav] = useState(false);
 
     const navigate = useNavigate();
+    // loading context
+    const { showLoader, hideLoader } = useLoading();
 
     // --- AUTHENTICATION & DATA LOADING ---
     useEffect(() => {
@@ -1294,15 +1298,19 @@ const OfficialDashboard = () => {
 
     // --- API FETCHING FUNCTIONS ---
     const fetchPetitions = async () => {
+        showLoader();
         try {
             const response = await API.getPetitions({ limit: 1000 });
             setPetitions(response.data.petitions || []);
         } catch (err) {
             console.error('Failed to fetch petitions:', err);
             setPetitions([]);
+        } finally {
+            hideLoader();
         }
     };
     const fetchPolls = async () => {
+        showLoader();
         try {
             const response = await API.getAllPolls();
             const raw = response.data || [];
@@ -1316,25 +1324,34 @@ const OfficialDashboard = () => {
         } catch (err) {
             console.error('Failed to fetch polls:', err);
             setPolls([]);
+        } finally {
+            hideLoader();
         }
     };
     const fetchStats = async () => {
+        showLoader();
         try {
             const response = await API.getDashboardSummary();
             setStats(response.data);
         } catch (err) {
             console.error('Failed to fetch stats:', err);
+        } finally {
+            hideLoader();
         }
     };
     const fetchEngagement = async () => {
+        showLoader();
         try {
             const response = await API.getDashboardEngagement();
             setEngagement(response.data);
         } catch (err) {
             console.error('Failed to fetch engagement data:', err);
+        } finally {
+            hideLoader();
         }
     };
     const fetchReportsData = async () => {
+        showLoader();
         setIsReportLoading(true);
         try {
             const response = await API.getReportsData();
@@ -1344,6 +1361,7 @@ const OfficialDashboard = () => {
             setReportsData(null);
         } finally {
             setIsReportLoading(false);
+            hideLoader();
         }
     };
     
@@ -1379,7 +1397,8 @@ const OfficialDashboard = () => {
         setIsSubmitting(true);
         try {
             // Upsert behavior: create or update an existing response
-            await API.respondToPetition(selectedPetition._1d || selectedPetition._id, {
+            showLoader();
+            await API.respondToPetition(selectedPetition._id, {
                 ...responseForm,
                 respondedBy: userInfo?.fullName || 'Public Official'
             });
@@ -1394,6 +1413,7 @@ const OfficialDashboard = () => {
             setToast({ show: true, message: "Failed to submit response. Please try again.", type: "error" });
         } finally {
             setIsSubmitting(false);
+            hideLoader();
         }
     };
     const addPollOption = () => setPollOptions([...pollOptions, '']);
@@ -1410,8 +1430,9 @@ const OfficialDashboard = () => {
             setToast({ show: true, message: "Please fill all poll fields.", type: "error" });
             return;
         }
-        setIsPollSubmitting(true);
-        try {
+    setIsPollSubmitting(true);
+    showLoader();
+    try {
             const pollData = {
                 title: pollQuestion,
                 description: pollDescription,
@@ -1446,9 +1467,11 @@ const OfficialDashboard = () => {
             setToast({ show: true, message: serverMessage || "Error saving poll.", type: "error" });
         } finally {
             setIsPollSubmitting(false);
+            hideLoader();
         }
     };
     const viewResults = async (pollId) => {
+        showLoader();
         try {
             const response = await API.getPollResults(pollId);
             setSelectedPollResults({
@@ -1459,6 +1482,8 @@ const OfficialDashboard = () => {
             setShowResultsModal(true);
         } catch (err) {
             alert('Failed to fetch poll results');
+        } finally {
+            hideLoader();
         }
     };
     const handleDeletePoll = (pollId) => {
@@ -1466,6 +1491,7 @@ const OfficialDashboard = () => {
     };
     const confirmClosePoll = async () => {
         if (!closePollId) return;
+        showLoader();
         try {
             await API.deletePoll(closePollId);
             setToast({ show: true, message: 'Poll closed successfully!', type: 'success' });
@@ -1474,6 +1500,8 @@ const OfficialDashboard = () => {
         } catch (err) {
             setToast({ show: true, message: 'Error closing poll.', type: 'error' });
             setClosePollId(null);
+        } finally {
+            hideLoader();
         }
     };
     const cancelClosePoll = () => setClosePollId(null);
@@ -1835,30 +1863,38 @@ const OfficialDashboard = () => {
                         return;
                     }
 
-                    const escapeCsv = (val) => '"' + String(val ?? '').replace(/"/g, '""') + '"';
+                    showLoader();
+                    try {
+                        const escapeCsv = (val) => '"' + String(val ?? '').replace(/"/g, '""') + '"';
 
-                    const headers = ['ID', 'Title', 'Status', 'Submitted', 'Signatures', 'Official Response'];
-                    const rows = petitions.map(p => {
-                        const id = p._id || p.id || '';
-                        const title = p.title || '';
-                        const status = p.status || '';
-                        const submitted = p.createdAt ? new Date(p.createdAt).toLocaleString() : '';
-                        const signatures = (p.signatures && p.signatures.length) ? p.signatures.length : 0;
-                        const officialResponse = (p.officialResponse && p.officialResponse.message) ? p.officialResponse.message : 'N/A';
-                        return [id, title, status, submitted, signatures, officialResponse].map(escapeCsv).join(',');
-                    });
+                        const headers = ['ID', 'Title', 'Status', 'Submitted', 'Signatures', 'Official Response'];
+                        const rows = petitions.map(p => {
+                            const id = p._id || p.id || '';
+                            const title = p.title || '';
+                            const status = p.status || '';
+                            const submitted = p.createdAt ? new Date(p.createdAt).toLocaleString() : '';
+                            const signatures = (p.signatures && p.signatures.length) ? p.signatures.length : 0;
+                            const officialResponse = (p.officialResponse && p.officialResponse.message) ? p.officialResponse.message : 'N/A';
+                            return [id, title, status, submitted, signatures, officialResponse].map(escapeCsv).join(',');
+                        });
 
-                    const csvContent = [headers.map(escapeCsv).join(','), ...rows].join('\n');
-                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `petitions_report_${new Date().toISOString().slice(0,10)}.csv`;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    URL.revokeObjectURL(url);
-                    setToast({ show: true, message: 'Export started — check your downloads folder.', type: 'success' });
+                        const csvContent = [headers.map(escapeCsv).join(','), ...rows].join('\n');
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `petitions_report_${new Date().toISOString().slice(0,10)}.csv`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        URL.revokeObjectURL(url);
+                        setToast({ show: true, message: 'Export started — check your downloads folder.', type: 'success' });
+                    } catch (err) {
+                        console.error('Error exporting CSV', err);
+                        setToast({ show: true, message: 'Failed to export CSV', type: 'error' });
+                    } finally {
+                        hideLoader();
+                    }
                 };
 
                 return (
