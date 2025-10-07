@@ -203,11 +203,15 @@ const Polls: React.FC = () => {
     setToast({ show: true, message: "You must be logged in to create a poll.", type: "error" });
     return;
   }
-  if (!pollLocation.trim()) {
-    setToast({ show: true, message: "Location is required!", type: "error" });
+  // Validate all required fields: question, at least 2 options, and location
+  const filledOptions = pollOptions.filter(opt => opt.trim());
+  if (!pollQuestion.trim() || filledOptions.length < 2 || !pollLocation.trim()) {
+    // Close the modal first so the toast isn't hidden behind it
+    setShowCreateModal(false);
+    setLocationError('');
+    setToast({ show: true, message: "All fields are required", type: "error" });
     return;
-  }
-  else {
+  } else {
     setLocationError('');
   }
     const pollData = {
