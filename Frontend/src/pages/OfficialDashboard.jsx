@@ -2623,6 +2623,8 @@ const OfficialDashboard = () => {
     const handleFormChange = (e) => setResponseForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     const submitResponse = async () => {
         if (!selectedPetition || !responseForm.message.trim()) {
+            // close the response modal first so the toast is visible above it
+            closeResponseModal();
             setToast({ show: true, message: "Please fill in the response message", type: "error" });
             return;
         }
