@@ -62,6 +62,8 @@ The system is built using **Node.js**, **Express**, **React**, and **MongoDB** t
    MONGO_URI=your_mongodb_connection_string
    JWT_SECRET=your_secret_key
    FRONTEND_URL=http://localhost:3000
+   EMAIL_USER=your_email@example.com
+   EMAIL_PASS=your_email_password
    ```
 
 5. **Start the backend server**
