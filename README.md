@@ -159,3 +159,11 @@ The system is built using **Node.js**, **Express**, **React**, and **MongoDB** t
 
 ---
 
+👨‍💻 Team Members
+| Name                   | Role                          |
+| ---------------------- | ----------------------------- |
+| **Abhishek Prasad**    | Backend Development           |
+| **Uday Teja**          | Backend Development           |
+| **Madhu Sri Alpani**   | Frontend Development          |
+| **Suvidha Shetty**     | Frontend Development          |
+| **Ayyappa Thommandru** | API Integration & Development |
